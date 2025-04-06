@@ -15,7 +15,7 @@
     <input type="text" id="name" placeholder="Nama Lengkap" class="w-full p-2 mb-3 border rounded" />
     <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 border rounded" />
     <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 border rounded" />
-    <input type="text" id="sponsorID" placeholder="ID Sponsor" class="w-full p-2 mb-3 border rounded" />
+    <input type="text" id="sponsorID" placeholder="Kode Sponsor" class="w-full p-2 mb-3 border rounded" />
     <button onclick="register()" class="w-full bg-green-600 text-white p-2 rounded">Daftar</button>
     <p class="text-sm text-center mt-4">Sudah punya akun? <a href="index.html" class="text-blue-500">Login</a></p>
   </div>
@@ -33,7 +33,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Cari parentID secara otomatis berdasarkan struktur matrix 3x3 dari sponsorID
     async function findAutoParent(sponsorID) {
       const queue = [sponsorID];
 
@@ -44,7 +43,6 @@
 
         if (!data || !data.downlines) continue;
 
-        // Struktur matrix 3x3: maksimal 3 anak langsung
         if (data.downlines.length < 3) {
           return currentID;
         } else {
@@ -52,35 +50,43 @@
         }
       }
 
-      return sponsorID; // fallback jika tidak ditemukan slot kosong
+      return sponsorID; // fallback
     }
 
     async function register() {
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const sponsorID = document.getElementById('sponsorID').value;
+      const sponsorID = document.getElementById('sponsorID').value.trim();
+
+      if (!sponsorID) {
+        alert("Kode Sponsor tidak boleh kosong. Tanyakan pada pengundang Anda!");
+        return;
+      }
 
       try {
-        // Tentukan parentID otomatis berdasarkan struktur matrix
-        const parentID = await findAutoParent(sponsorID);
+        const sponsorRef = db.collection("users").doc(sponsorID);
+        const sponsorDoc = await sponsorRef.get();
+        if (!sponsorDoc.exists) {
+          alert("Kode Sponsor tidak valid! Tanyakan pada pengundang Anda!");
+          return;
+        }
 
+        const parentID = await findAutoParent(sponsorID);
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         const uid = userCredential.user.uid;
 
         await db.collection("users").doc(uid).set({
           name,
           email,
-          sponsorID, // yang mengajak (komisi sponsor 10%)
-          parentID,   // posisi di struktur matrix
+          sponsorID,
+          parentID,
           joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
           downlines: [],
           totalSales: 0
         });
 
-        // Tambahkan user ke downlines parent (struktur matrix)
-        const parentRef = db.collection("users").doc(parentID);
-        await parentRef.update({
+        await db.collection("users").doc(parentID).update({
           downlines: firebase.firestore.FieldValue.arrayUnion(uid)
         });
 
