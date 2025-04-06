@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - Parmina Network</title>
+  <title>Daftar - Parmina Network</title>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
@@ -12,10 +12,12 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
     <h1 class="text-2xl font-bold mb-4 text-center">Daftar Member Baru</h1>
+    <p class="text-sm mb-4 text-gray-600 text-center">Isi semua kolom dengan lengkap untuk mendaftar</p>
     <input type="text" id="name" placeholder="Nama Lengkap" class="w-full p-2 mb-3 border rounded" />
+    <input type="text" id="username" placeholder="Username (unik)" class="w-full p-2 mb-3 border rounded" />
     <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 border rounded" />
     <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 border rounded" />
-    <input type="text" id="sponsorID" placeholder="Kode Sponsor" class="w-full p-2 mb-3 border rounded" />
+    <input type="text" id="sponsorCodeInput" placeholder="Kode Sponsor dari Pengundang" class="w-full p-2 mb-3 border rounded" />
     <button onclick="register()" class="w-full bg-green-600 text-white p-2 rounded">Daftar</button>
     <p class="text-sm text-center mt-4">Sudah punya akun? <a href="index.html" class="text-blue-500">Login</a></p>
   </div>
@@ -35,46 +37,55 @@
 
     async function findAutoParent(sponsorID) {
       const queue = [sponsorID];
-
       while (queue.length > 0) {
         const currentID = queue.shift();
         const doc = await db.collection("users").doc(currentID).get();
         const data = doc.data();
-
         if (!data || !data.downlines) continue;
-
         if (data.downlines.length < 3) {
           return currentID;
         } else {
           queue.push(...data.downlines);
         }
       }
-
       return sponsorID; // fallback
     }
 
     async function register() {
       const name = document.getElementById('name').value.trim();
+      const username = document.getElementById('username').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const sponsorID = document.getElementById('sponsorID').value.trim();
+      const sponsorCodeInput = document.getElementById('sponsorCodeInput').value.trim();
 
-      if (!sponsorID) {
-        alert("Kode Sponsor tidak boleh kosong. Tanyakan pada pengundang Anda!");
+      if (!name || !username || !email || !password || !sponsorCodeInput) {
+        alert("Isi data di semua kolom dengan lengkap!");
         return;
       }
 
       try {
-        const sponsorRef = db.collection("users").doc(sponsorID);
-        const sponsorDoc = await sponsorRef.get();
-        if (!sponsorDoc.exists) {
+        const sponsorSnap = await db.collection("users")
+          .where("sponsorCode", "==", sponsorCodeInput)
+          .limit(1).get();
+
+        if (sponsorSnap.empty) {
           alert("Kode Sponsor tidak valid! Tanyakan pada pengundang Anda!");
           return;
         }
 
-        const parentID = await findAutoParent(sponsorID);
+        const sponsorDoc = sponsorSnap.docs[0];
+        const sponsorID = sponsorDoc.id;
 
-        // Buat akun auth hanya jika sponsor valid
+        const codeCheck = await db.collection("users")
+          .where("sponsorCode", "==", username)
+          .limit(1).get();
+
+        if (!codeCheck.empty) {
+          alert("Username sudah dipakai, silakan pilih yang lain!");
+          return;
+        }
+
+        const parentID = await findAutoParent(sponsorID);
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         const uid = userCredential.user.uid;
 
@@ -82,6 +93,7 @@
           name,
           email,
           sponsorID,
+          sponsorCode: username,
           parentID,
           joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
           downlines: [],
@@ -94,6 +106,7 @@
 
         alert("Pendaftaran berhasil! Silakan login.");
         window.location.href = "index.html";
+
       } catch (error) {
         alert("Pendaftaran gagal: " + error.message);
       }
