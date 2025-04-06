@@ -73,6 +73,8 @@
         }
 
         const parentID = await findAutoParent(sponsorID);
+
+        // Buat akun auth hanya jika sponsor valid
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         const uid = userCredential.user.uid;
 
