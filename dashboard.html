@@ -13,25 +13,29 @@
 <body class="bg-gray-100 min-h-screen flex flex-col md:flex-row">
   <!-- Toggle Button for Mobile -->
   <div class="p-4 md:hidden flex justify-between items-center bg-white shadow">
-    <h2 class="text-xl font-bold text-green-700">Parmina Network</h2>
     <button onclick="toggleSidebar()" class="text-green-700 focus:outline-none">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
     </button>
+    <h2 class="text-xl font-bold text-green-700">Parmina Network</h2>
   </div>
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="bg-white w-64 p-4 shadow-lg hidden md:block md:h-auto h-screen md:relative fixed z-50 top-0 left-0">
+  <aside id="sidebar" class="bg-white w-64 p-4 shadow-lg hidden md:block md:h-auto h-screen md:relative fixed z-50 top-0 left-0 transition-transform duration-300 ease-in-out">
     <h2 class="text-2xl font-bold text-green-700 mb-6 hidden md:block">Parmina Network</h2>
     <nav>
       <ul class="space-y-2">
-        <li><button onclick="showSection('home')" class="text-green-700 hover:underline">🏠 Beranda</button></li>
-        <li><button onclick="showSection('network')" class="text-green-700 hover:underline">🌿 Jaringan Saya</button></li>
-        <li><button onclick="showSection('komisi')" class="text-green-700 hover:underline">💸 Komisi Saya</button></li>
-        <li><button onclick="showSection('bonus')" class="text-green-700 hover:underline">🎁 Bonus Reward</button></li>
-        <li><button onclick="showSection('riwayat')" class="text-green-700 hover:underline">📄 Riwayat Transaksi</button></li>
-        <li><button onclick="showSection('profil')" class="text-green-700 hover:underline">👤 Profil & Akun</button></li>
+        <li><button onclick="navigateMenu('home')" class="text-green-700 hover:underline">🏠 Beranda</button></li>
+        <li><button onclick="navigateMenu('network')" class="text-green-700 hover:underline">🌿 Jaringan Saya</button></li>
+        <li><button onclick="navigateMenu('komisi')" class="text-green-700 hover:underline">💸 Komisi Saya</button></li>
+        <li><button onclick="navigateMenu('bonus')" class="text-green-700 hover:underline">🎁 Bonus Reward</button></li>
+        <li><button onclick="navigateMenu('riwayat')" class="text-green-700 hover:underline">📄 Riwayat Transaksi</button></li>
+        <li><button onclick="navigateMenu('bop')" class="text-green-700 hover:underline">📢 BOP</button></li>
+        <li><button onclick="navigateMenu('webinar')" class="text-green-700 hover:underline">🧑‍💻 Webinar</button></li>
+        <li><button onclick="navigateMenu('seminar')" class="text-green-700 hover:underline">🎓 Boost Seminar</button></li>
+        <li><button onclick="navigateMenu('galeri')" class="text-green-700 hover:underline">🖼️ Galeri</button></li>
+        <li><button onclick="navigateMenu('profil')" class="text-green-700 hover:underline">👤 Profil & Akun</button></li>
       </ul>
     </nav>
   </aside>
@@ -66,6 +70,26 @@
       <p>Riwayat pembelian pribadi dan downline akan ditampilkan di sini.</p>
     </section>
 
+    <section id="bopSection" class="hidden">
+      <h2 class="text-xl font-bold text-green-700">Business Opportunity Presentation</h2>
+      <p>Informasi BOP akan ditampilkan di sini.</p>
+    </section>
+
+    <section id="webinarSection" class="hidden">
+      <h2 class="text-xl font-bold text-green-700">Webinar</h2>
+      <p>Jadwal dan rekaman webinar akan ditampilkan di sini.</p>
+    </section>
+
+    <section id="seminarSection" class="hidden">
+      <h2 class="text-xl font-bold text-green-700">Boost Seminar</h2>
+      <p>Informasi tentang seminar akan ditampilkan di sini.</p>
+    </section>
+
+    <section id="galeriSection" class="hidden">
+      <h2 class="text-xl font-bold text-green-700">Galeri</h2>
+      <p>Dokumentasi acara dan kegiatan akan ditampilkan di sini.</p>
+    </section>
+
     <section id="profilSection" class="hidden">
       <h2 class="text-xl font-bold text-green-700">Profil & Akun</h2>
       <p>Fitur untuk edit profil dan password akan ditambahkan di sini.</p>
@@ -85,7 +109,7 @@
     const db = firebase.firestore();
 
     function showSection(section) {
-      const sections = ['home', 'network', 'komisi', 'bonus', 'riwayat', 'profil'];
+      const sections = ['home', 'network', 'komisi', 'bonus', 'riwayat', 'bop', 'webinar', 'seminar', 'galeri', 'profil'];
       sections.forEach(id => {
         document.getElementById(id + 'Section').classList.add('hidden');
       });
@@ -95,6 +119,19 @@
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       sidebar.classList.toggle('hidden');
+      const icon = document.getElementById('menuIcon');
+      if (icon.classList.contains('cross')) {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
+        icon.classList.remove('cross');
+      } else {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
+        icon.classList.add('cross');
+      }
+    }
+
+    function navigateMenu(section) {
+      showSection(section);
+      if (window.innerWidth < 768) toggleSidebar();
     }
 
     firebase.auth().onAuthStateChanged(async (user) => {
