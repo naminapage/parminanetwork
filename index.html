@@ -18,6 +18,10 @@
     <button onclick="loginUser()" class="w-full bg-green-600 hover:bg-green-700 text-white p-2 rounded">Login</button>
     <p id="loginError" class="text-sm text-red-600 mt-4 text-center"></p>
     <p id="loginSuccess" class="text-sm text-green-600 mt-2 text-center"></p>
+    <div class="text-center mt-4">
+      <a href="#" onclick="resetPassword()" class="text-sm text-green-600 hover:underline">Lupa Password?</a>
+    </div>
+    <p id="resetInfo" class="text-sm text-green-600 mt-2 text-center"></p>
     <p class="text-center text-sm mt-4">Belum punya akun? <a href="register.html" class="text-green-600">Daftar di sini</a></p>
   </div>
 
@@ -39,6 +43,7 @@
     const passwordError = document.getElementById("passwordError");
     const loginError = document.getElementById("loginError");
     const loginSuccess = document.getElementById("loginSuccess");
+    const resetInfo = document.getElementById("resetInfo");
 
     async function loginUser() {
       const email = emailInput.value.trim();
@@ -48,6 +53,7 @@
       passwordError.textContent = "";
       loginError.textContent = "";
       loginSuccess.textContent = "";
+      resetInfo.textContent = "";
 
       if (!email || !password) {
         if (!email) emailError.textContent = "Email wajib diisi!";
@@ -75,23 +81,34 @@
           }, 1500);
         }
       } catch (error) {
-        console.log("Firebase Login Error:", error.code);
-        switch (error.code) {
-          case 'auth/user-not-found':
-            loginError.textContent = "Email belum terdaftar! Silakan daftar dulu.";
-            break;
-          case 'auth/wrong-password':
-            loginError.textContent = "Password salah! Coba lagi.";
-            break;
-          case 'auth/invalid-email':
-            loginError.textContent = "Format email tidak valid!";
-            break;
-          case 'auth/invalid-credential':
-            loginError.textContent = "Email atau password salah! Periksa kembali.";
-            break;
-          default:
-            loginError.textContent = "Login gagal: " + error.message;
-            break;
+        if (error.code === 'auth/user-not-found') {
+          loginError.textContent = "Akun tidak ditemukan! Daftar dulu yuk.";
+        } else if (error.code === 'auth/wrong-password') {
+          loginError.textContent = "Password salah! Coba lagi atau daftar dulu!";
+        } else {
+          loginError.textContent = "Login gagal: " + error.message;
+        }
+      }
+    }
+
+    async function resetPassword() {
+      const email = emailInput.value.trim();
+      resetInfo.textContent = "";
+      loginError.textContent = "";
+
+      if (!email) {
+        emailError.textContent = "Masukkan email terlebih dahulu untuk reset password.";
+        return;
+      }
+
+      try {
+        await firebase.auth().sendPasswordResetEmail(email);
+        resetInfo.textContent = "Email reset password telah dikirim. Silakan cek email Anda!";
+      } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+          loginError.textContent = "Email tidak ditemukan! Pastikan sudah terdaftar.";
+        } else {
+          loginError.textContent = "Gagal kirim reset password: " + error.message;
         }
       }
     }
