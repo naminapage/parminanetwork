@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parmina Network - Login</title>
+  <title>Login - Parmina Network</title>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
-    <h1 class="text-2xl font-bold mb-4 text-center">Login Parmina Network</h1>
+    <h1 class="text-2xl font-bold mb-4 text-center">Login Member</h1>
     <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 border rounded" />
     <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 border rounded" />
-    <button onclick="login()" class="w-full bg-blue-600 text-white p-2 rounded">Login</button>
-    <p class="text-sm text-center mt-4">Belum punya akun? <a href="register.html" class="text-blue-500">Daftar</a></p>
+    <button onclick="login()" id="loginButton" class="w-full bg-green-600 text-white p-2 rounded">Login</button>
+    <p class="text-sm text-center mt-4">Belum punya akun? <a href="register.html" class="text-blue-500">Daftar Sekarang</a></p>
+    <p id="errorMsg" class="text-red-500 text-sm mt-2 text-center"></p>
   </div>
 
   <script>
@@ -31,13 +31,35 @@
     firebase.initializeApp(firebaseConfig);
 
     async function login() {
-      const email = document.getElementById('email').value;
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+      const errorMsg = document.getElementById('errorMsg');
+      const loginButton = document.getElementById('loginButton');
+
+      errorMsg.textContent = "";
+
+      if (!email || !password) {
+        errorMsg.textContent = "Silakan isi email dan password.";
+        return;
+      }
+
+      loginButton.disabled = true;
+      loginButton.textContent = "Masuk...";
+
       try {
         await firebase.auth().signInWithEmailAndPassword(email, password);
         window.location.href = "dashboard.html";
       } catch (error) {
-        alert("Login gagal: " + error.message);
+        if (error.code === "auth/user-not-found") {
+          errorMsg.textContent = "Akun tidak ditemukan. Silakan periksa kembali email Anda.";
+        } else if (error.code === "auth/wrong-password") {
+          errorMsg.textContent = "Password salah. Coba lagi.";
+        } else {
+          errorMsg.textContent = "Login gagal: " + error.message;
+        }
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = "Login";
       }
     }
   </script>
