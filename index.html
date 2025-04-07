@@ -70,25 +70,27 @@
 
       try {
         await firebase.auth().signInWithEmailAndPassword(email, password);
-        window.location.href = "dashboard.html";
-      } const user = firebase.auth().currentUser;
+ 
+        const user = firebase.auth().currentUser;
       if (!user.emailVerified) {
-      firebase.auth().signOut(); // keluarin user biar gak lanjut
-      errorMsg.textContent = "Email belum diverifikasi! Silakan cek email Anda dan klik link verifikasi.";
-      return;
+        await firebase.auth().signOut(); // keluarin user biar gak lanjut
+        errorMsg.textContent = "Email belum diverifikasi! Silakan cek email Anda dan klik link verifikasi.";
+        return;
       }
-      catch (error) {
+
+      window.location.href = "dashboard.html";
+
+      } catch (error) {
         console.log("Firebase Login Error:", error.code);
-        if (error.code === "auth/user-not-found") {
-          errorMsg.textContent = "Akun tidak ditemukan. Silakan periksa kembali email Anda.";
-        } else if (
-          error.code === "auth/wrong-password" ||
-          error.code === "auth/invalid-credential"
-        ) {
-          errorMsg.textContent = "Password salah! Coba lagi atau daftar dulu!";
-        } else {
-          errorMsg.textContent = "Login gagal: " + error.message;
-        }
+      if (error.code === "auth/user-not-found") {
+        errorMsg.textContent = "Akun tidak ditemukan. Silakan periksa kembali email Anda.";
+      } else if (error.code === "auth/wrong-password") {
+        errorMsg.textContent = "Password salah! Coba lagi atau daftar dulu!";
+      } else {
+        errorMsg.textContent = "Login gagal: " + error.message;
+     }
+   }
+
       } finally {
         loginButton.disabled = false;
         loginButton.textContent = "Login";
