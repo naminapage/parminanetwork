@@ -51,7 +51,7 @@
         emailError.textContent = "Email wajib diisi.";
         hasError = true;
       } else if (!emailRegex.test(email)) {
-        emailError.textContent = "Format email tidak valid. Contoh: contoh@email.com (gmail, hotmail, yahoo dll.)";
+        emailError.textContent = "Format email tidak valid. Contoh: contoh@email.com";
         hasError = true;
       }
 
@@ -75,7 +75,10 @@
         console.log("Firebase Login Error:", error.code);
         if (error.code === "auth/user-not-found") {
           errorMsg.textContent = "Akun tidak ditemukan. Silakan periksa kembali email Anda.";
-        } else if (error.code === "auth/wrong-password") {
+        } else if (
+          error.code === "auth/wrong-password" ||
+          error.code === "auth/invalid-credential"
+        ) {
           errorMsg.textContent = "Password salah! Coba lagi atau daftar dulu!";
         } else {
           errorMsg.textContent = "Login gagal: " + error.message;
