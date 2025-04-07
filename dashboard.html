@@ -126,6 +126,26 @@
       });
     }
 
+    async function buildNetworkTree(uid, level = 1) {
+      if (level > 3) return "";
+
+      const downlines = await db.collection("users").where("parent", "==", uid).get();
+      if (downlines.empty) return "";
+
+      let html = `<ul class="ml-${level * 4} list-disc text-green-800">`;
+      for (const doc of downlines.docs) {
+        const d = doc.data();
+        const nama = d.nama || "Tanpa Nama";
+        const id = doc.id;
+        html += `<li>${nama} (${id})`;
+        const childTree = await buildNetworkTree(id, level + 1);
+        html += childTree;
+        html += `</li>`;
+      }
+      html += `</ul>`;
+      return html;
+    }
+
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         const userDoc = await db.collection('users').doc(user.uid).get();
@@ -168,19 +188,8 @@
             document.getElementById("userParent").textContent = "-";
           }
 
-          const downlineQuery = await db.collection("users").where("parent", "==", user.uid).limit(3).get();
-          let treeHTML = "";
-          if (!downlineQuery.empty) {
-            treeHTML = `<ul class="ml-4 list-disc text-green-800">`;
-            downlineQuery.forEach(doc => {
-              const d = doc.data();
-              treeHTML += `<li>${d.nama || 'Tanpa Nama'} (${doc.id})</li>`;
-            });
-            treeHTML += `</ul>`;
-          } else {
-            treeHTML = `<p class="text-gray-600">Belum ada downline langsung.</p>`;
-          }
-          document.getElementById("networkTree").innerHTML = treeHTML;
+          const treeHTML = await buildNetworkTree(user.uid);
+          document.getElementById("networkTree").innerHTML = treeHTML || `<p class="text-gray-600">Belum ada downline langsung.</p>`;
         }
       } else {
         window.location.href = "index.html";
