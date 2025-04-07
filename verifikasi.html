@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifikasi Email - Parmina Network</title>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-4">Verifikasi Email</h1>
+    <p class="mb-4">Kami telah mengirimkan email verifikasi ke alamat email Anda. Silakan cek inbox atau folder spam, lalu klik link verifikasi di email tersebut.</p>
+    <button onclick="cekVerifikasi()" class="bg-blue-600 text-white px-4 py-2 rounded">Saya sudah verifikasi</button>
+    <p id="verifikasiMsg" class="text-red-500 text-sm mt-4"></p>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC6CD-KssIaBO0lGZbf5ymrH03uVfbNP-k",
+      authDomain: "parminanetwork.firebaseapp.com",
+      projectId: "parminanetwork",
+      storageBucket: "parminanetwork.firebasestorage.app",
+      messagingSenderId: "736943184054",
+      appId: "1:736943184054:web:31fed7a4d10442870e2e17"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    async function cekVerifikasi() {
+      const user = firebase.auth().currentUser;
+      const verifikasiMsg = document.getElementById("verifikasiMsg");
+      await user.reload();
+
+      if (user.emailVerified) {
+        window.location.href = "login.html";
+      } else {
+        verifikasiMsg.textContent = "Email Anda belum terverifikasi. Coba lagi setelah klik link verifikasi di email.";
+      }
+    }
+  </script>
+</body>
+</html>
