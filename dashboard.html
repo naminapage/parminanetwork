@@ -87,11 +87,12 @@
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         try {
-          const userRef = db.collection('users').doc(user.uid);
-          const userDoc = await userRef.get();
-
-          if (userDoc.exists) {
+          // Cari dokumen berdasarkan UID atau username jika UID random
+          const userQuery = await db.collection('users').where('email', '==', user.email).get();
+          if (!userQuery.empty) {
+            const userDoc = userQuery.docs[0];
             const data = userDoc.data();
+
             document.getElementById("userName").textContent = data.nama || "User";
             document.getElementById("personalPurchase").textContent = data.pembelianPribadi || 0;
             document.getElementById("networkOmzet").textContent = data.omzetJaringan || 0;
@@ -108,6 +109,8 @@
 
             document.getElementById("userSponsor").textContent = data.sponsorID || "-";
             document.getElementById("userParent").textContent = data.parentID || "-";
+          } else {
+            console.log("Dokumen pengguna tidak ditemukan.");
           }
         } catch (e) {
           console.error("Gagal load data pengguna:", e);
