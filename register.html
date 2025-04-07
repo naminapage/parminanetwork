@@ -16,9 +16,11 @@
     <input type="text" id="username" placeholder="Username (unik, jadi kode sponsor Anda)" class="w-full p-2 mb-3 border rounded" />
     <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 border rounded" />
     <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 border rounded" />
+    <input type="password" id="confirmPassword" placeholder="Konfirmasi Password" class="w-full p-2 mb-3 border rounded" />
     <input type="text" id="sponsorCodeInput" placeholder="Kode Sponsor dari Pengundang" class="w-full p-2 mb-3 border rounded" />
-    <button onclick="register()" class="w-full bg-green-600 text-white p-2 rounded">Daftar</button>
+    <button onclick="register()" id="registerButton" class="w-full bg-green-600 text-white p-2 rounded">Daftar</button>
     <p class="text-sm text-center mt-4">Sudah punya akun? <a href="index.html" class="text-blue-500">Login</a></p>
+    <p id="errorMsg" class="text-red-500 text-sm mt-2 text-center"></p>
   </div>
 
   <script>
@@ -45,21 +47,17 @@
 
     async function findAutoParent(sponsorID) {
       const queue = [sponsorID];
-
       while (queue.length > 0) {
         const currentID = queue.shift();
         const doc = await db.collection("users").doc(currentID).get();
         const data = doc.data();
-
         if (!data || !data.downlines) continue;
-
         if (data.downlines.length < 3) {
           return currentID;
         } else {
           queue.push(...data.downlines);
         }
       }
-
       return sponsorID;
     }
 
@@ -68,32 +66,57 @@
       const username = document.getElementById('username').value.trim().toLowerCase();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
       const sponsorCodeInput = document.getElementById('sponsorCodeInput').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const registerButton = document.getElementById('registerButton');
 
-      if (!name || !username || !email || !password || !sponsorCodeInput) {
-        alert("Isi semua kolom dengan lengkap!");
+      errorMsg.textContent = "";
+
+      if (!name || !username || !email || !password || !confirmPassword || !sponsorCodeInput) {
+        errorMsg.textContent = "Isi semua kolom dengan lengkap!";
+        return;
+      }
+
+      if (!/^[a-zA-Z\s]+$/.test(name)) {
+        errorMsg.textContent = "Nama lengkap hanya boleh berisi huruf dan spasi!";
         return;
       }
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        alert("Format email tidak valid! Contoh: Harus contoh@email.com (gmail, hotmail, yahoo dll.)");
+        errorMsg.textContent = "Format email tidak valid! Contoh: Harus contoh@email.com (gmail, hotmail, yahoo dll.)";
+        return;
+      }
+
+      if (password.length < 6) {
+        errorMsg.textContent = "Password minimal 6 karakter!";
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorMsg.textContent = "Password tidak cocok!";
         return;
       }
 
       const blockedUsernames = ["admin", "support", "parmina", "root", "system"];
       if (blockedUsernames.includes(username)) {
-        alert("Username tidak diperbolehkan. Silakan pilih yang lain.");
+        errorMsg.textContent = "Username tidak diperbolehkan. Silakan pilih yang lain.";
         return;
       }
 
       try {
+        registerButton.disabled = true;
+        registerButton.textContent = "Mendaftarkan...";
+
         const sponsorSnap = await db.collection("users")
           .where("sponsorCode", "==", sponsorCodeInput)
           .limit(1).get();
 
         if (sponsorSnap.empty) {
-          alert("Kode Sponsor tidak valid! Tanyakan pada pengundang Anda!");
+          errorMsg.textContent = "Kode Sponsor tidak valid! Tanyakan pada pengundang Anda!";
+          registerButton.disabled = false;
+          registerButton.textContent = "Daftar";
           return;
         }
 
@@ -105,12 +128,13 @@
           .limit(1).get();
 
         if (!codeCheck.empty) {
-          alert("Username sudah dipakai, silakan pilih yang lain!");
+          errorMsg.textContent = "Username sudah dipakai, silakan pilih yang lain!";
+          registerButton.disabled = false;
+          registerButton.textContent = "Daftar";
           return;
         }
 
         const parentID = await findAutoParent(sponsorID);
-
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         const uid = userCredential.user.uid;
 
@@ -131,9 +155,11 @@
 
         alert("Pendaftaran berhasil! Silakan login.");
         window.location.href = "index.html";
-
       } catch (error) {
-        alert("Pendaftaran gagal: " + error.message);
+        errorMsg.textContent = "Pendaftaran gagal: " + error.message;
+      } finally {
+        registerButton.disabled = false;
+        registerButton.textContent = "Daftar";
       }
     }
   </script>
