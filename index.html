@@ -11,8 +11,10 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
     <h1 class="text-2xl font-bold mb-4 text-center">Login Member</h1>
-    <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 border rounded" />
-    <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 border rounded" />
+    <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-1 border rounded" />
+    <p id="emailError" class="text-red-500 text-xs mb-2 ml-1"></p>
+    <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-1 border rounded" />
+    <p id="passwordError" class="text-red-500 text-xs mb-2 ml-1"></p>
     <button onclick="login()" id="loginButton" class="w-full bg-green-600 text-white p-2 rounded">Login</button>
     <p class="text-sm text-center mt-4">Belum punya akun? <a href="register.html" class="text-blue-500">Daftar Sekarang</a></p>
     <p id="errorMsg" class="text-red-500 text-sm mt-2 text-center"></p>
@@ -35,13 +37,33 @@
       const password = document.getElementById('password').value;
       const errorMsg = document.getElementById('errorMsg');
       const loginButton = document.getElementById('loginButton');
+      const emailError = document.getElementById('emailError');
+      const passwordError = document.getElementById('passwordError');
 
       errorMsg.textContent = "";
+      emailError.textContent = "";
+      passwordError.textContent = "";
 
-      if (!email || !password) {
-        errorMsg.textContent = "Silakan isi email dan password.";
-        return;
+      let hasError = false;
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email) {
+        emailError.textContent = "Email wajib diisi.";
+        hasError = true;
+      } else if (!emailRegex.test(email)) {
+        emailError.textContent = "Format email tidak valid. Contoh: contoh@email.com";
+        hasError = true;
       }
+
+      if (!password) {
+        passwordError.textContent = "Password wajib diisi.";
+        hasError = true;
+      } else if (password.length < 6) {
+        passwordError.textContent = "Password minimal 6 karakter.";
+        hasError = true;
+      }
+
+      if (hasError) return;
 
       loginButton.disabled = true;
       loginButton.textContent = "Masuk...";
