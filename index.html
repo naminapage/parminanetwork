@@ -75,12 +75,23 @@
           }, 1500);
         }
       } catch (error) {
-        if (error.code === 'auth/user-not-found') {
-          loginError.textContent = "Akun tidak ditemukan! Daftar dulu yuk.";
-        } else if (error.code === 'auth/wrong-password') {
-          loginError.textContent = "Password salah! Coba lagi atau daftar dulu!";
-        } else {
-          loginError.textContent = "Login gagal: " + error.message;
+        console.log("Firebase Login Error:", error.code);
+        switch (error.code) {
+          case 'auth/user-not-found':
+            loginError.textContent = "Email belum terdaftar! Silakan daftar dulu.";
+            break;
+          case 'auth/wrong-password':
+            loginError.textContent = "Password salah! Coba lagi.";
+            break;
+          case 'auth/invalid-email':
+            loginError.textContent = "Format email tidak valid!";
+            break;
+          case 'auth/invalid-credential':
+            loginError.textContent = "Email atau password salah! Periksa kembali.";
+            break;
+          default:
+            loginError.textContent = "Login gagal: " + error.message;
+            break;
         }
       }
     }
