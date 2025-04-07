@@ -104,7 +104,6 @@
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       sidebar.classList.toggle('show');
-      const icon = document.getElementById('menuIcon');
       const path = document.getElementById('menuPath');
       if (sidebar.classList.contains('show')) {
         path.setAttribute("d", "M6 18L18 6M6 6l12 12");
@@ -130,6 +129,21 @@
           document.getElementById("userStatus").textContent = aktif ? "Aktif Bulan Ini" : "Belum Aktif Bulan Ini";
           document.getElementById("userStatus").classList.toggle("text-green-600", aktif);
           document.getElementById("userStatus").classList.toggle("text-red-600", !aktif);
+
+          // Tambahkan: Tampilkan 3 downline langsung
+          const downlineQuery = await db.collection("users").where("parent", "==", user.uid).limit(3).get();
+          let treeHTML = "";
+          if (!downlineQuery.empty) {
+            treeHTML = `<ul class="ml-4 list-disc text-green-800">`;
+            downlineQuery.forEach(doc => {
+              const d = doc.data();
+              treeHTML += `<li>${d.nama || 'Tanpa Nama'} (${doc.id})</li>`;
+            });
+            treeHTML += `</ul>`;
+          } else {
+            treeHTML = `<p class="text-gray-600">Belum ada downline langsung.</p>`;
+          }
+          document.getElementById("networkTree").innerHTML = treeHTML;
         }
       } else {
         window.location.href = "index.html";
