@@ -11,9 +11,10 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md text-center">
     <h1 class="text-2xl font-bold mb-4">Verifikasi Email</h1>
-    <p class="mb-4">Kami telah mengirimkan email verifikasi ke alamat email Anda. Silakan cek inbox atau folder spam, lalu klik link verifikasi di email tersebut.</p>
-    <button onclick="cekVerifikasi()" class="bg-blue-600 text-white px-4 py-2 rounded">Saya sudah verifikasi</button>
-    <p id="verifikasiMsg" class="text-red-500 text-sm mt-4"></p>
+    <p class="mb-4">Kami telah mengirimkan link verifikasi ke email Anda. Silakan cek kotak masuk atau folder spam.</p>
+    <button onclick="sendVerification()" class="w-full bg-yellow-500 text-white p-2 rounded mb-2">Kirim Ulang Email Verifikasi</button>
+    <button onclick="checkVerification()" class="w-full bg-green-600 text-white p-2 rounded">Saya Sudah Verifikasi</button>
+    <p id="infoMsg" class="text-sm text-blue-600 mt-4"></p>
   </div>
 
   <script>
@@ -28,15 +29,34 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    async function cekVerifikasi() {
-      const user = firebase.auth().currentUser;
-      const verifikasiMsg = document.getElementById("verifikasiMsg");
-      await user.reload();
+    const infoMsg = document.getElementById("infoMsg");
 
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else if (user.emailVerified) {
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    async function sendVerification() {
+      const user = firebase.auth().currentUser;
+      try {
+        await user.sendEmailVerification();
+        infoMsg.textContent = "Link verifikasi telah dikirim ulang. Silakan cek email Anda.";
+      } catch (error) {
+        console.log("Send Verification Error:", error.code);
+        infoMsg.textContent = "Gagal mengirim ulang verifikasi: " + error.message;
+      }
+    }
+
+    async function checkVerification() {
+      const user = firebase.auth().currentUser;
+      await user.reload();
       if (user.emailVerified) {
-        window.location.href = "login.html";
+        window.location.href = "dashboard.html";
       } else {
-        verifikasiMsg.textContent = "Email Anda belum terverifikasi. Coba lagi setelah klik link verifikasi di email.";
+        infoMsg.textContent = "Email Anda belum diverifikasi. Silakan cek email Anda dan klik link verifikasi.";
       }
     }
   </script>
