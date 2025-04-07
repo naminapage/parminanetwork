@@ -156,7 +156,11 @@
         alert("Pendaftaran berhasil! Silakan login.");
         window.location.href = "index.html";
       } catch (error) {
-        errorMsg.textContent = "Pendaftaran gagal: " + error.message;
+        if (error.code === "auth/email-already-in-use") {
+          errorMsg.textContent = "Email sudah terdaftar. Silakan gunakan email lain atau login.";
+        } else {
+          errorMsg.textContent = "Pendaftaran gagal: " + error.message;
+        }
       } finally {
         registerButton.disabled = false;
         registerButton.textContent = "Daftar";
