@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar - Parmina Network</title>
+  <title>Register - Parmina Network</title>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
@@ -12,9 +12,8 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
     <h1 class="text-2xl font-bold mb-4 text-center">Daftar Member Baru</h1>
-    <p class="text-sm mb-4 text-gray-600 text-center">Isi semua kolom dengan lengkap untuk mendaftar</p>
     <input type="text" id="name" placeholder="Nama Lengkap" class="w-full p-2 mb-3 border rounded" />
-    <input type="text" id="username" placeholder="Username (unik)" class="w-full p-2 mb-3 border rounded" />
+    <input type="text" id="username" placeholder="Username (unik, jadi kode sponsor Anda)" class="w-full p-2 mb-3 border rounded" />
     <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 border rounded" />
     <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 border rounded" />
     <input type="text" id="sponsorCodeInput" placeholder="Kode Sponsor dari Pengundang" class="w-full p-2 mb-3 border rounded" />
@@ -35,31 +34,56 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ref = urlParams.get('ref');
+      if (ref) {
+        document.getElementById('sponsorCodeInput').value = ref;
+      }
+      document.getElementById('name').focus();
+    });
+
     async function findAutoParent(sponsorID) {
       const queue = [sponsorID];
+
       while (queue.length > 0) {
         const currentID = queue.shift();
         const doc = await db.collection("users").doc(currentID).get();
         const data = doc.data();
+
         if (!data || !data.downlines) continue;
+
         if (data.downlines.length < 3) {
           return currentID;
         } else {
           queue.push(...data.downlines);
         }
       }
-      return sponsorID; // fallback
+
+      return sponsorID;
     }
 
     async function register() {
       const name = document.getElementById('name').value.trim();
-      const username = document.getElementById('username').value.trim();
+      const username = document.getElementById('username').value.trim().toLowerCase();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const sponsorCodeInput = document.getElementById('sponsorCodeInput').value.trim();
 
       if (!name || !username || !email || !password || !sponsorCodeInput) {
-        alert("Isi data di semua kolom dengan lengkap!");
+        alert("Isi semua kolom dengan lengkap!");
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Format email tidak valid! Contoh: Harus contoh@email.com (gmail, hotmail, yahoo dll.)");
+        return;
+      }
+
+      const blockedUsernames = ["admin", "support", "parmina", "root", "system"];
+      if (blockedUsernames.includes(username)) {
+        alert("Username tidak diperbolehkan. Silakan pilih yang lain.");
         return;
       }
 
@@ -86,6 +110,7 @@
         }
 
         const parentID = await findAutoParent(sponsorID);
+
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         const uid = userCredential.user.uid;
 
