@@ -21,6 +21,7 @@
     <button onclick="register()" id="registerButton" class="w-full bg-green-600 text-white p-2 rounded">Daftar</button>
     <p class="text-sm text-center mt-4">Sudah punya akun? <a href="index.html" class="text-blue-500">Login</a></p>
     <p id="errorMsg" class="text-red-500 text-sm mt-2 text-center"></p>
+    <p id="successMsg" class="text-green-600 text-sm mt-2 text-center"></p>
   </div>
 
   <script>
@@ -69,9 +70,11 @@
       const confirmPassword = document.getElementById('confirmPassword').value;
       const sponsorCodeInput = document.getElementById('sponsorCodeInput').value.trim();
       const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
       const registerButton = document.getElementById('registerButton');
 
       errorMsg.textContent = "";
+      successMsg.textContent = "";
 
       if (!name || !username || !email || !password || !confirmPassword || !sponsorCodeInput) {
         errorMsg.textContent = "Isi semua kolom dengan lengkap!";
@@ -153,8 +156,10 @@
           downlines: firebase.firestore.FieldValue.arrayUnion(uid)
         });
 
-        alert("Pendaftaran berhasil! Silakan login.");
-        window.location.href = "index.html";
+        successMsg.textContent = "Pendaftaran berhasil! Mengarahkan ke halaman login...";
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 3000);
       } catch (error) {
         if (error.code === "auth/email-already-in-use") {
           errorMsg.textContent = "Email sudah terdaftar. Silakan gunakan email lain atau login.";
