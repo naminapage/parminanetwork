@@ -68,8 +68,8 @@
       }
 
       try {
-        await firebase.auth().signInWithEmailAndPassword(email, password);
-        const user = firebase.auth().currentUser;
+        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
 
         if (!user.emailVerified) {
           await firebase.auth().signOut();
@@ -81,10 +81,13 @@
           }, 1500);
         }
       } catch (error) {
+        console.log("Login Error:", error.code);
         if (error.code === 'auth/user-not-found') {
           loginError.textContent = "Akun tidak ditemukan! Daftar dulu yuk.";
         } else if (error.code === 'auth/wrong-password') {
-          loginError.textContent = "Password salah! Coba lagi atau daftar dulu!";
+          passwordError.textContent = "Password salah! Coba lagi atau daftar dulu!";
+        } else if (error.code === 'auth/invalid-email') {
+          emailError.textContent = "Email tidak valid! Masukkan email dengan format benar.";
         } else {
           loginError.textContent = "Login gagal: " + error.message;
         }
