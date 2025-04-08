@@ -287,6 +287,39 @@
         treeContainer.innerHTML = "<p class='text-red-600'>Gagal mengambil data jaringan.</p>";
       }
     }
+    async function loadNetwork() {
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+
+      try {
+        const userQuery = await db.collection("users").where("email", "==", user.email).get();
+        if (userQuery.empty) return;
+
+        const userDoc = userQuery.docs[0];
+        const userData = userDoc.data();
+
+        const container = document.getElementById("networkContainer");
+        container.innerHTML = `<p class="text-green-700 font-semibold">Memuat jaringan...</p>`;
+
+        const frontlines = userData.frontlines || [];
+        let html = `<h3 class="text-lg font-bold text-green-700 mt-4">Frontline (Level 1)</h3><ul class="list-disc pl-5">`;
+
+        for (const uid of frontlines) {
+          const doc = await db.collection("users").doc(uid).get();
+          if (doc.exists) {
+            const data = doc.data();
+            html += `<li>${data.nama || 'Tanpa Nama'} (${data.email})</li>`;
+          }
+        }
+
+        html += `</ul>`;
+        container.innerHTML = html;
+
+      } catch (err) {
+        console.error("Gagal load jaringan:", err);
+        document.getElementById("networkContainer").innerHTML = `<p class="text-red-600">Gagal memuat jaringan.</p>`;
+      }
+    }
   </script>
 </body>
 </html>
