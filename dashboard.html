@@ -1,380 +1,101 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Parmina Network</title>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+  <title>Parmina Network Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    #sidebar {
-      transform: translateX(-100%);
-    }
-    #sidebar.show {
-      transform: translateX(0);
-    }
-    @media (min-width: 768px) {
-      #sidebar {
-        transform: none;
-      }
-    }
-    .transition-soft {
-      transition: transform 0.4s ease-in-out;
-    }
-    .animate-slide {
-      transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
-    }
-  </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col md:flex-row">
-  <!-- Toggle Button for Mobile -->
-  <div class="p-4 md:hidden flex justify-between items-center bg-white shadow">
-    <button onclick="toggleSidebar()" class="text-green-700 focus:outline-none">
-      <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path id="menuPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </button>
-    <h2 class="text-xl font-bold text-green-700">Parmina Network</h2>
+
+<body class="bg-gray-100 font-sans">
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-lg p-6 space-y-6">
+      <h1 class="text-2xl font-bold text-purple-700">Parmina Network</h1>
+      <nav class="space-y-2">
+        <a href="#" class="block py-2 px-4 rounded-lg bg-purple-100 text-purple-700 font-semibold">🏠 Beranda</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🌿 Jaringan Saya</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">💸 Komisi Saya</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎁 Bonus Reward</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📄 Riwayat Transaksi</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📢 BOP</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🧑‍💻 Webinar</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎓 Boost Seminar</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🖼️ Galeri</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">👤 Profil & Akun</a>
+        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-red-100 text-red-600 font-semibold">🚪 Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Welcome Card -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-1 md:col-span-2 lg:col-span-3">
+          <h3 class="text-xl font-semibold text-purple-700 mb-2">Selamat Datang, <span class="font-bold">User</span></h3>
+          <p class="text-gray-600">Status: <span class="font-medium">Memuat...</span></p>
+        </div>
+
+        <!-- Pembelian Pribadi -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+          <h3 class="text-xl font-semibold text-purple-700 mb-2">Pembelian Pribadi</h3>
+          <p class="text-gray-600 text-lg font-bold">Rp0</p>
+        </div>
+
+        <!-- Omzet Jaringan -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+          <h3 class="text-xl font-semibold text-purple-700 mb-2">Omzet Jaringan</h3>
+          <p class="text-gray-600 text-lg font-bold">Rp0</p>
+        </div>
+
+        <!-- Sponsor -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+          <h3 class="text-xl font-semibold text-purple-700 mb-2">Sponsor</h3>
+          <p class="text-gray-600">Memuat...</p>
+        </div>
+
+        <!-- Upline -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+          <h3 class="text-xl font-semibold text-purple-700 mb-2">Upline</h3>
+          <p class="text-gray-600">Memuat...</p>
+        </div>
+      </div>
+      <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">🌿 Jaringan Saya</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Downline Langsung (Level 1) -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-1 md:col-span-2 lg:col-span-3">
+          <h3 class="text-xl font-semibold text-purple-700 mb-4">Level 1 (Frontline)</h3>
+          <ul class="text-gray-600 list-disc list-inside space-y-1">
+            <li><span class="font-bold">user001</span> - Cici</li>
+            <li><span class="font-bold">user002</span> - Dodi</li>
+            <li><span class="font-bold">user003</span> - Euis</li>
+          </ul>
+        </div>
+
+        <!-- Jaringan Level 2-10 -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-1 md:col-span-2 lg:col-span-3">
+          <h3 class="text-xl font-semibold text-purple-700 mb-4">Level 2–10</h3>
+          <ul class="text-sm text-gray-600 space-y-1">
+            <li>Level 2: <span class="font-bold">9</span> orang</li>
+            <li>Level 3: <span class="font-bold">27</span> orang</li>
+            <li>Level 4: <span class="font-bold">81</span> orang</li>
+            <li>Level 5: <span class="font-bold">243</span> orang</li>
+            <li>Level 6: <span class="font-bold">729</span> orang</li>
+            <li>Level 7: <span class="font-bold">2.187</span> orang</li>
+            <li>Level 8: <span class="font-bold">6.561</span> orang</li>
+            <li>Level 9: <span class="font-bold">19.683</span> orang</li>
+            <li>Level 10: <span class="font-bold">59.049</span> orang</li>
+          </ul>
+        </div>
+      </div>
+    </main>
   </div>
-
-  <!-- Sidebar -->
-  <aside id="sidebar" class="bg-white w-64 p-4 shadow-lg transition-soft md:translate-x-0 md:relative fixed z-50 top-0 left-0 h-screen">
-    <h2 class="text-2xl font-bold text-green-700 mb-6 hidden md:block">Parmina Network</h2>
-    <nav>
-      <ul class="space-y-2">
-        <li><button type="button" onclick="navigateMenu('home')" class="text-green-700 hover:underline">🏠 Beranda</button></li>
-        <li><button type="button" onclick="navigateMenu('network')" class="text-green-700 hover:underline">🌿 Jaringan Saya</button></li>
-        <li><button type="button" onclick="navigateMenu('komisi')" class="text-green-700 hover:underline">💸 Komisi Saya</button></li>
-        <li><button type="button" onclick="navigateMenu('bonus')" class="text-green-700 hover:underline">🎁 Bonus Reward</button></li>
-        <li><button type="button" onclick="navigateMenu('riwayat')" class="text-green-700 hover:underline">📄 Riwayat Transaksi</button></li>
-        <li><button type="button" onclick="navigateMenu('bop')" class="text-green-700 hover:underline">📢 BOP</button></li>
-        <li><button type="button" onclick="navigateMenu('webinar')" class="text-green-700 hover:underline">🧑‍💻 Webinar</button></li>
-        <li><button type="button" onclick="navigateMenu('seminar')" class="text-green-700 hover:underline">🎓 Boost Seminar</button></li>
-        <li><button type="button" onclick="navigateMenu('galeri')" class="text-green-700 hover:underline">🖼️ Galeri</button></li>
-        <li><button type="button" onclick="navigateMenu('profil')" class="text-green-700 hover:underline">👤 Profil & Akun</button></li>
-        <li><button onclick="logoutUser()" class="text-red-600 hover:underline">🚪 Logout</button></li>
-      </ul>
-    </nav>
-  </aside>
-
-  <!-- Content -->
-  <main class="flex-1 p-6 md:ml-0" id="mainContent">
-    <section id="homeSection">
-      <h1 class="text-2xl font-bold text-green-700 mb-4">Selamat Datang, <span id="userName">User</span> <span id="userBadge"></span></h1>
-      <p><strong>Status:</strong> <span id="userStatus" class="font-semibold">Memuat...</span></p>
-      <p><strong>Pembelian Pribadi:</strong> Rp<span id="personalPurchase">0</span></p>
-      <p><strong>Omzet Jaringan:</strong> Rp<span id="networkOmzet">0</span></p>
-      <p><strong>Sponsor:</strong> <span id="userSponsor">Memuat...</span></p>
-      <p><strong>Upline:</strong> <span id="userParent">Memuat...</span></p>
-    </section>
-  </main>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyC6CD-KssIaBO0lGZbf5ymrH03uVfbNP-k",
-      authDomain: "parminanetwork.firebaseapp.com",
-      projectId: "parminanetwork",
-      storageBucket: "parminanetwork.firebasestorage.app",
-      messagingSenderId: "736943184054",
-      appId: "1:736943184054:web:31fed7a4d10442870e2e17"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    firebase.auth().onAuthStateChanged(async (user) => {
-      if (user) {
-        try {
-          // Cari dokumen berdasarkan UID atau username jika UID random
-          const userQuery = await db.collection('users').where('email', '==', user.email).get();
-          if (!userQuery.empty) {
-            const userDoc = userQuery.docs[0];
-            const data = userDoc.data();
-
-            document.getElementById("userName").textContent = data.nama || "User";
-            document.getElementById("personalPurchase").textContent = data.pembelianPribadi || 0;
-            document.getElementById("networkOmzet").textContent = data.omzetJaringan || 0;
-
-            const statusEl = document.getElementById("userStatus");
-            const aktif = data.statusAktif === true || data.statusAktif === "true" || data.isTopLevel === true;
-            statusEl.textContent = aktif ? "Aktif Bulan Ini" : "Belum Aktif Bulan Ini";
-            statusEl.classList.remove("text-green-600", "text-red-600");
-            statusEl.classList.add(aktif ? "text-green-600" : "text-red-600");
-
-            if (data.isTopLevel === true) {
-              document.getElementById("userBadge").innerHTML = "<span title='Top Leader' class='ml-2'>👑</span>";
-            }
-
-            // Tampilkan nama + email untuk sponsor dan parent
-            if (data.sponsorID) {
-              const sponsorRef = await db.collection('users').doc(data.sponsorID).get();
-              const sponsorData = sponsorRef.data();
-              document.getElementById("userSponsor").textContent =
-              sponsorData ? `${sponsorData.name} (${sponsorData.email})` : data.sponsorID;
-            }
-
-            if (data.parentID) {
-              const parentRef = await db.collection('users').doc(data.parentID).get();
-              const parentData = parentRef.data();
-              document.getElementById("userParent").textContent =
-              parentData ? `${parentData.name} (${parentData.email})` : data.parentID;
-            }
-          } else {
-            console.log("Dokumen pengguna tidak ditemukan.");
-          }
-        } catch (e) {
-          console.error("Gagal load data pengguna:", e);
-        }
-      } else {
-        window.location.href = "index.html";
-      }
-    });
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      const path = document.getElementById("menuPath");
-      sidebar.classList.toggle("show");
-      const isOpen = sidebar.classList.contains("show");
-      path.setAttribute("d", isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16");
-    }
-
-    function navigateMenu(menu) {
-      const mainContent = document.getElementById("mainContent");
-
-      if (menu === "home") {
-        // Balikin tampilan beranda awal
-        mainContent.innerHTML = `
-          <section id="homeSection">
-            <h1 class="text-2xl font-bold text-green-700 mb-4">Selamat Datang, <span id="userName">User</span> <span id="userBadge"></span></h1>
-            <p><strong>Status:</strong> <span id="userStatus" class="font-semibold">Memuat...</span></p>
-            <p><strong>Pembelian Pribadi:</strong> Rp<span id="personalPurchase">0</span></p>
-            <p><strong>Omzet Jaringan:</strong> Rp<span id="networkOmzet">0</span></p>
-            <p><strong>Sponsor:</strong> <span id="userSponsor">Memuat...</span></p>
-            <p><strong>Parent Matrix:</strong> <span id="userParent">Memuat...</span></p>
-          </section>`;
-    
-        // Trigger ulang ambil data user buat ngisi ulang
-        firebase.auth().onAuthStateChanged(async (user) => {
-          if (user) {
-            try {
-              const userQuery = await db.collection('users').where('email', '==', user.email).get();
-              if (!userQuery.empty) {
-                const userDoc = userQuery.docs[0];
-                const data = userDoc.data();
-
-                document.getElementById("userName").textContent = data.name || "User";
-                document.getElementById("personalPurchase").textContent = data.pembelianPribadi || 0;
-                document.getElementById("networkOmzet").textContent = data.omzetJaringan || 0;
-
-                const statusEl = document.getElementById("userStatus");
-                const aktif = data.statusAktif === true || data.statusAktif === "true" || data.isTopLevel === true;
-                statusEl.textContent = aktif ? "Aktif Bulan Ini" : "Belum Aktif Bulan Ini";
-                statusEl.classList.remove("text-green-600", "text-red-600");
-                statusEl.classList.add(aktif ? "text-green-600" : "text-red-600");
-
-                if (data.isTopLevel === true) {
-                  document.getElementById("userBadge").innerHTML = "<span title='Top Leader' class='ml-2'>👑</span>";
-                }
-
-                // Ambil sponsor dan parent (versi lengkap)
-                if (data.sponsorID) {
-                  const sponsorSnap = await db.collection("users").doc(data.sponsorID).get();
-                  const sponsor = sponsorSnap.data();
-                  document.getElementById("userSponsor").textContent = sponsor ? `${sponsor.name} (${sponsor.email})` : "-";
-                } else {
-                  document.getElementById("userSponsor").textContent = "-";
-                }
-
-                if (data.parentID) {
-                  const parentSnap = await db.collection("users").doc(data.parentID).get();
-                  const parent = parentSnap.data();
-                  document.getElementById("userParent").textContent = parent ? `${parent.name} (${parent.email})` : "-";
-                } else {
-                  document.getElementById("userParent").textContent = "-";
-                }
-              }
-            } catch (e) {
-              console.error("Gagal load ulang beranda:", e);
-            }
-          }
-        });
-        
-      } else {
-        // Untuk menu selain home, isi dummy
-        mainContent.innerHTML = `
-          <div class="flex items-center justify-center mt-10 animate-pulse">
-            <p class="text-green-700 text-lg font-semibold">Memuat konten <span class="capitalize">${menu}</span>...</p>
-          </div>`;
-        setTimeout(() => {
-          if (menu === "network") {
-            mainContent.innerHTML = `
-              <section class="p-4">
-                <h2 class="text-xl font-bold text-green-700 mb-2 capitalize">Jaringan Saya</h2>
-                <p>Berikut adalah struktur jaringan Anda:</p>
-                <div id="networkContainer" class="mt-4"></div>
-              </section>`;
-
-            // Tambahin delay biar konten udah masuk ke DOM
-            setTimeout(() => {
-              loadNetwork();
-            }, 100); // 100ms cukup bor
-          }
-          
-          <section class="p-4">
-            <h2 class="text-xl font-bold text-green-700 mb-4">Struktur Jaringan Anda</h2>
-
-            <div id="networkContainer">
-              <div class="mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">👥 Frontline (Level 1)</h3>
-                <ul id="frontlineList" class="list-disc list-inside text-gray-700 dark:text-gray-300"></ul>
-              </div>
-
-              <div>
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">🌿 Downline (Level 2+)</h3>
-                <ul id="downlineList" class="list-disc list-inside text-gray-700 dark:text-gray-300"></ul>
-              </div>
-            </div>
-          </section>`;
-            setTimeout(() => {
-              mainContent.innerHTML = `...struktur jaringan...`;
-              loadNetwork(); // <-- ini penting, biar datanya dimuat setelah HTML-nya ada
-            }, 300);
-          }
-
-      if (window.innerWidth < 768) toggleSidebar();
-    }
-
-    function logoutUser() {
-      firebase.auth().signOut().then(() => {
-        window.location.href = "index.html";
-      });
-    }
-    
-    async function loadNetwork() {
-      const user = firebase.auth().currentUser;
-      if (!user) return;
-
-      const snapshot = await db.collection("users").where("email", "==", user.email).get();
-      if (snapshot.empty) return;
-
-      const userData = snapshot.docs[0].data();
-      const userID = userData.username || snapshot.docs[0].id;
-
-      const treeContainer = document.getElementById("networkTree");
-      treeContainer.innerHTML = "<p class='text-gray-500'>Mengambil data jaringan...</p>";
-
-      try {
-        const usersSnapshot = await db.collection("users").get();
-        const allUsers = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        const frontline = allUsers.filter(u => u.parentID === userID);
-        const downlineMap = {};
-
-        frontline.forEach(f => {
-          downlineMap[f.username || f.id] = allUsers.filter(d => d.parentID === (f.username || f.id));
-        });
-
-        let html = `<div class="mb-4"><h3 class="font-semibold text-green-700">Frontline:</h3>`;
-        if (frontline.length === 0) {
-          html += `<p class="text-sm text-gray-500">Belum ada frontline.</p>`;
-        } else {
-          frontline.forEach(f => {
-            html += `<div class="ml-4 my-1 p-2 border rounded bg-white shadow-sm">
-              <p><strong>${f.nama}</strong> (${f.email})</p>`;
-            const down = downlineMap[f.username || f.id] || [];
-            if (down.length > 0) {
-              html += `<p class="mt-1 text-sm text-green-700">Downline:</p><ul class="list-disc ml-6">`;
-              down.forEach(d => {
-                html += `<li>${d.nama} (${d.email})</li>`;
-              });
-              html += `</ul>`;
-            } else {
-              html += `<p class="text-sm text-gray-400">Belum ada downline.</p>`;
-            }
-            html += `</div>`;
-          });
-        }
-        html += `</div>`;
-        treeContainer.innerHTML = html;
-      } catch (error) {
-        console.error("Gagal load jaringan:", error);
-        treeContainer.innerHTML = "<p class='text-red-600'>Gagal mengambil data jaringan.</p>";
-      }
-    }
-    async function loadNetwork() {
-      const user = firebase.auth().currentUser;
-      if (!user) return;
-
-      try {
-        const userQuery = await db.collection("users").where("email", "==", user.email).get();
-        if (userQuery.empty) return;
-
-        const userDoc = userQuery.docs[0];
-        const userData = userDoc.data();
-
-        const container = document.getElementById("networkContainer");
-        container.innerHTML = `<p class="text-green-700 font-semibold">Memuat jaringan...</p>`;
-
-        const frontlines = userData.frontlines || [];
-        let html = `<h3 class="text-lg font-bold text-green-700 mt-4">Frontline (Level 1)</h3><ul class="list-disc pl-5">`;
-
-        for (const uid of frontlines) {
-          const doc = await db.collection("users").doc(uid).get();
-          if (doc.exists) {
-            const data = doc.data();
-            html += `<li>${data.nama || 'Tanpa Nama'} (${data.email})</li>`;
-          }
-        }
-
-        html += `</ul>`;
-        container.innerHTML = html;
-
-      } catch (err) {
-        console.error("Gagal load jaringan:", err);
-        document.getElementById("networkContainer").innerHTML = `<p class="text-red-600">Gagal memuat jaringan.</p>`;
-      }
-    }
-    <script>
-      function loadNetwork() {
-        const networkTree = document.getElementById("networkTree");
-        if (!networkTree) {
-          console.error("Elemen networkTree tidak ditemukan");
-          return;
-        }
-
-        networkTree.innerHTML = `
-          <div class="p-4 bg-white rounded shadow">
-            <p><strong>Frontline:</strong></p>
-            <ul class="list-disc pl-5">
-              <li>Andi (andi@mail.com)</li>
-              <li>Budi (budi@mail.com)</li>
-            </ul>
-          </div>
-          <div class="p-4 bg-white rounded shadow">
-            <p><strong>Downline:</strong></p>
-            <ul class="list-disc pl-5">
-              <li>Citra (citra@mail.com)</li>
-              <li>Dina (dina@mail.com)</li>
-            </ul>
-          </div>
-        `;
-      }
-
-      // Auto-load kalau section-nya ditampilkan
-      function navigateMenu(menu) {
-        const sections = {
-          home: "homeSection",
-          network: "networkSection"
-        };
-        Object.values(sections).forEach(id => document.getElementById(id).style.display = "none");
-        document.getElementById(sections[menu]).style.display = "block";
-
-        if (menu === "network") {
-          loadNetwork();
-        }
-      }
-    </script>
 </body>
+
 </html>
