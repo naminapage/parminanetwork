@@ -235,58 +235,58 @@
         window.location.href = "index.html";
       });
     }
-    <script>
-  async function loadNetwork() {
-    const user = firebase.auth().currentUser;
-    if (!user) return;
+  <script>
+    async function loadNetwork() {
+      const user = firebase.auth().currentUser;
+      if (!user) return;
 
-    const snapshot = await db.collection("users").where("email", "==", user.email).get();
-    if (snapshot.empty) return;
+      const snapshot = await db.collection("users").where("email", "==", user.email).get();
+      if (snapshot.empty) return;
 
-    const userData = snapshot.docs[0].data();
-    const userID = userData.username || snapshot.docs[0].id;
+      const userData = snapshot.docs[0].data();
+      const userID = userData.username || snapshot.docs[0].id;
 
-    const treeContainer = document.getElementById("networkTree");
-    treeContainer.innerHTML = "<p class='text-gray-500'>Mengambil data jaringan...</p>";
+      const treeContainer = document.getElementById("networkTree");
+      treeContainer.innerHTML = "<p class='text-gray-500'>Mengambil data jaringan...</p>";
 
-    try {
-      const usersSnapshot = await db.collection("users").get();
-      const allUsers = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      try {
+        const usersSnapshot = await db.collection("users").get();
+        const allUsers = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      const frontline = allUsers.filter(u => u.parentID === userID);
-      const downlineMap = {};
+        const frontline = allUsers.filter(u => u.parentID === userID);
+        const downlineMap = {};
 
-      frontline.forEach(f => {
-        downlineMap[f.username || f.id] = allUsers.filter(d => d.parentID === (f.username || f.id));
-      });
-
-      let html = `<div class="mb-4"><h3 class="font-semibold text-green-700">Frontline:</h3>`;
-      if (frontline.length === 0) {
-        html += `<p class="text-sm text-gray-500">Belum ada frontline.</p>`;
-      } else {
         frontline.forEach(f => {
-          html += `<div class="ml-4 my-1 p-2 border rounded bg-white shadow-sm">
-            <p><strong>${f.nama}</strong> (${f.email})</p>`;
-          const down = downlineMap[f.username || f.id] || [];
-          if (down.length > 0) {
-            html += `<p class="mt-1 text-sm text-green-700">Downline:</p><ul class="list-disc ml-6">`;
-            down.forEach(d => {
-              html += `<li>${d.nama} (${d.email})</li>`;
-            });
-            html += `</ul>`;
-          } else {
-            html += `<p class="text-sm text-gray-400">Belum ada downline.</p>`;
-          }
-          html += `</div>`;
+          downlineMap[f.username || f.id] = allUsers.filter(d => d.parentID === (f.username || f.id));
         });
+
+        let html = `<div class="mb-4"><h3 class="font-semibold text-green-700">Frontline:</h3>`;
+        if (frontline.length === 0) {
+          html += `<p class="text-sm text-gray-500">Belum ada frontline.</p>`;
+        } else {
+          frontline.forEach(f => {
+            html += `<div class="ml-4 my-1 p-2 border rounded bg-white shadow-sm">
+              <p><strong>${f.nama}</strong> (${f.email})</p>`;
+            const down = downlineMap[f.username || f.id] || [];
+            if (down.length > 0) {
+              html += `<p class="mt-1 text-sm text-green-700">Downline:</p><ul class="list-disc ml-6">`;
+              down.forEach(d => {
+                html += `<li>${d.nama} (${d.email})</li>`;
+              });
+              html += `</ul>`;
+            } else {
+              html += `<p class="text-sm text-gray-400">Belum ada downline.</p>`;
+            }
+            html += `</div>`;
+          });
+        }
+        html += `</div>`;
+        treeContainer.innerHTML = html;
+      } catch (error) {
+        console.error("Gagal load jaringan:", error);
+        treeContainer.innerHTML = "<p class='text-red-600'>Gagal mengambil data jaringan.</p>";
       }
-      html += `</div>`;
-      treeContainer.innerHTML = html;
-    } catch (error) {
-      console.error("Gagal load jaringan:", error);
-      treeContainer.innerHTML = "<p class='text-red-600'>Gagal mengambil data jaringan.</p>";
     }
-  }
   </script>
 </body>
 </html>
