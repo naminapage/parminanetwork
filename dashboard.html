@@ -68,7 +68,7 @@
       <p><strong>Pembelian Pribadi:</strong> Rp<span id="personalPurchase">0</span></p>
       <p><strong>Omzet Jaringan:</strong> Rp<span id="networkOmzet">0</span></p>
       <p><strong>Sponsor:</strong> <span id="userSponsor">Memuat...</span></p>
-      <p><strong>Parent Matrix:</strong> <span id="userParent">Memuat...</span></p>
+      <p><strong>Upline:</strong> <span id="userParent">Memuat...</span></p>
     </section>
   </main>
 
@@ -112,14 +112,14 @@
               const sponsorRef = await db.collection('users').doc(data.sponsorID).get();
               const sponsorData = sponsorRef.data();
               document.getElementById("userSponsor").textContent =
-              sponsorData ? `${sponsorData.nama} (${sponsorData.email})` : data.sponsorID;
+              sponsorData ? `${sponsorData.name} (${sponsorData.email})` : data.sponsorID;
             }
 
             if (data.parentID) {
               const parentRef = await db.collection('users').doc(data.parentID).get();
               const parentData = parentRef.data();
               document.getElementById("userParent").textContent =
-              parentData ? `${parentData.nama} (${parentData.email})` : data.parentID;
+              parentData ? `${parentData.name} (${parentData.email})` : data.parentID;
             }
           } else {
             console.log("Dokumen pengguna tidak ditemukan.");
