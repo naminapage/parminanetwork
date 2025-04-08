@@ -200,7 +200,7 @@
             }
           }
         });
-
+        
       } else {
         // Untuk menu selain home, isi dummy
         mainContent.innerHTML = `
@@ -210,15 +210,18 @@
         setTimeout(() => {
           if (menu === "network") {
             mainContent.innerHTML = `
-              <section id="networkSection" class="p-4">
-                <h2 class="text-xl font-bold text-green-700 mb-4">Jaringan Saya</h2>
-                <div id="networkTree">
-                  <p class="text-gray-500">Memuat jaringan...</p>
-                </div>
+              <section class="p-4">
+                <h2 class="text-xl font-bold text-green-700 mb-2 capitalize">Jaringan Saya</h2>
+                <p>Berikut adalah struktur jaringan Anda:</p>
+                <div id="networkContainer" class="mt-4"></div>
               </section>`;
-            loadNetwork(); // fungsi JS-nya nanti kita buat di bawah
-          }
 
+            // Tambahin delay biar konten udah masuk ke DOM
+            setTimeout(() => {
+              loadNetwork();
+            }, 100); // 100ms cukup bor
+          }
+          
           mainContent.innerHTML = `
             <section class="p-4">
               <h2 class="text-xl font-bold text-green-700 mb-2 capitalize">${menu.replace("-", " ")}</h2>
