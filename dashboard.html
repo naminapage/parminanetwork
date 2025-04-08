@@ -336,6 +336,45 @@
         document.getElementById("networkContainer").innerHTML = `<p class="text-red-600">Gagal memuat jaringan.</p>`;
       }
     }
-  </script>
+    <script>
+      function loadNetwork() {
+        const networkTree = document.getElementById("networkTree");
+        if (!networkTree) {
+          console.error("Elemen networkTree tidak ditemukan");
+          return;
+        }
+
+        networkTree.innerHTML = `
+          <div class="p-4 bg-white rounded shadow">
+            <p><strong>Frontline:</strong></p>
+            <ul class="list-disc pl-5">
+              <li>Andi (andi@mail.com)</li>
+              <li>Budi (budi@mail.com)</li>
+            </ul>
+          </div>
+          <div class="p-4 bg-white rounded shadow">
+            <p><strong>Downline:</strong></p>
+            <ul class="list-disc pl-5">
+              <li>Citra (citra@mail.com)</li>
+              <li>Dina (dina@mail.com)</li>
+            </ul>
+          </div>
+        `;
+      }
+
+      // Auto-load kalau section-nya ditampilkan
+      function navigateMenu(menu) {
+        const sections = {
+          home: "homeSection",
+          network: "networkSection"
+        };
+        Object.values(sections).forEach(id => document.getElementById(id).style.display = "none");
+        document.getElementById(sections[menu]).style.display = "block";
+
+        if (menu === "network") {
+          loadNetwork();
+        }
+      }
+    </script>
 </body>
 </html>
