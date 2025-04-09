@@ -55,7 +55,7 @@
         if (!snapshot.empty) {
           const data = snapshot.docs[0].data();
 
-          const nameEl = document.querySelector('#userName'); if (nameEl) nameEl.textContent = data.nama || 'User';
+          const nameEl = document.querySelector('#userName'); if (nameEl) nameEl.textContent = data.name || 'User';
           const purchaseEl = document.querySelector('#personalPurchase'); if (purchaseEl) purchaseEl.textContent = data.pembelianPribadi || 0;
           const omzetEl = document.querySelector('#networkOmzet'); if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
@@ -68,20 +68,28 @@
           }
 
           // Sponsor
-          if (data.sponsorID) {
+          if (data.sponsorID && data.sponsorID !== 'root') {
             const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
             const sponsor = sponsorDoc.data();
             if (sponsor) {
-              const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = `${sponsor.nama} (${sponsor.email})`;
+              const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
+            }
+          } else {
+            const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = 'Top Leader (admin)';
+          } (${sponsor.email})`;
             }
           }
 
           // Parent
-          if (data.parentID) {
+          if (data.parentID && data.parentID !== 'root') {
             const parentDoc = await db.collection('users').doc(data.parentID).get();
             const parent = parentDoc.data();
             if (parent) {
-              const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = `${parent.nama} (${parent.email})`;
+              const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
+            }
+          } else {
+            const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = 'Top Leader (admin)';
+          } (${parent.email})`;
             }
           }
         }
