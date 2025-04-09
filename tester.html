@@ -38,7 +38,7 @@
 
 <body class="bg-gray-100 font-sans">
   <!-- Toggle mobile -->
-  <div class="md:hidden p-4 bg-white flex justify-between items-center shadow">
+  <div class="md:hidden p-4 bg-white flex justify-between items-center shadow fixed top-0 left-0 right-0 z-50">
     <button onclick="toggleSidebar()" class="text-purple-700" id="menuButton">
       <svg id="menuIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path id="menuPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -47,7 +47,7 @@
     <h2 class="text-xl font-bold text-purple-700">Parmina Network</h2>
   </div>
 
-  <div class="flex min-h-screen relative md:overflow-hidden relative z-0">
+  <div class="flex min-h-screen pt-16 md:pt-0 relative md:overflow-hidden z-0">
     <!-- Sidebar -->
     <aside id="sidebar" class="w-64 bg-white shadow-lg p-6 space-y-6 fixed md:relative z-40 top-0 left-0 h-full md:h-auto md:block hidden">
       <h1 class="text-2xl font-bold text-purple-700">Parmina Network</h1>
