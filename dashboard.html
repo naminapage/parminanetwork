@@ -1,180 +1,237 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - Parmina Network</title>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+  <title>Parmina Network Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
-    <h1 class="text-2xl font-bold mb-4 text-center">Daftar Member Baru</h1>
-    <input type="text" id="name" placeholder="Nama Lengkap" class="w-full p-2 mb-3 border rounded" />
-    <input type="text" id="username" placeholder="Username (unik, jadi kode sponsor Anda)" class="w-full p-2 mb-3 border rounded" />
-    <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 border rounded" />
-    <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 border rounded" />
-    <input type="password" id="confirmPassword" placeholder="Konfirmasi Password" class="w-full p-2 mb-3 border rounded" />
-    <input type="text" id="sponsorCodeInput" placeholder="Kode Sponsor dari Pengundang" class="w-full p-2 mb-3 border rounded" />
-    <button onclick="register()" id="registerButton" class="w-full bg-green-600 text-white p-2 rounded">Daftar</button>
-    <p class="text-sm text-center mt-4">Sudah punya akun? <a href="index.html" class="text-blue-500">Login</a></p>
-    <p id="errorMsg" class="text-red-500 text-sm mt-2 text-center"></p>
-    <p id="successMsg" class="text-green-600 text-sm mt-2 text-center"></p>
+
+<body class="bg-gray-100 font-sans">
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-white shadow-lg p-6 space-y-6 hidden md:block">
+      <h1 class="text-2xl font-bold text-purple-700">Parmina Network</h1>
+      <nav class="space-y-2">
+        <button onclick="navigateMenu('home')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🏠 Beranda</button>
+        <button onclick="navigateMenu('network')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🌿 Jaringan Saya</button>
+        <button onclick="navigateMenu('komisi')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">💸 Komisi Saya</button>
+        <button onclick="navigateMenu('bonus')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎁 Bonus Reward</button>
+        <button onclick="navigateMenu('riwayat')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📄 Riwayat Transaksi</button>
+        <button onclick="navigateMenu('bop')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📢 BOP</button>
+        <button onclick="navigateMenu('webinar')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🧑‍💻 Webinar</button>
+        <button onclick="navigateMenu('boost')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎓 Boost Seminar</button>
+        <button onclick="navigateMenu('galeri')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🖼️ Galeri</button>
+        <button onclick="navigateMenu('profil')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">👤 Profil & Akun</button>
+        <button onclick="logoutUser()" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-red-100 text-red-600 font-semibold">🚪 Logout</button>
+      </nav>
+    </aside>
+
+    <!-- Mobile toggle -->
+    <div class="md:hidden p-4 bg-white w-full flex justify-between items-center">
+      <button onclick="toggleSidebar()" class="text-purple-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <h2 class="text-xl font-bold text-purple-700">Parmina Network</h2>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <!-- Section Beranda -->
+      <section id="homeSection">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-3">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Selamat Datang, <span class="font-bold">User</span></h3>
+            <p class="text-gray-600">Status: <span class="font-medium">Memuat...</span></p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Pembelian Pribadi</h3>
+            <p class="text-gray-600 text-lg font-bold">Rp0</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Omzet Jaringan</h3>
+            <p class="text-gray-600 text-lg font-bold">Rp0</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Sponsor</h3>
+            <p class="text-gray-600">Memuat...</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Upline</h3>
+            <p class="text-gray-600">Memuat...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Jaringan -->
+      <section id="networkSection" class="hidden">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">🌿 Jaringan Saya</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-3">
+            <h3 class="text-xl font-semibold text-purple-700 mb-4">Level 1 (Frontline)</h3>
+            <ul class="text-gray-600 list-disc list-inside space-y-1">
+              <li><span class="font-bold">user001</span> - Cici</li>
+              <li><span class="font-bold">user002</span> - Dodi</li>
+              <li><span class="font-bold">user003</span> - Euis</li>
+            </ul>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-3">
+            <h3 class="text-xl font-semibold text-purple-700 mb-4">Level 2–10</h3>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>Level 2: <span class="font-bold">9</span> orang</li>
+              <li>Level 3: <span class="font-bold">27</span> orang</li>
+              <li>Level 4: <span class="font-bold">81</span> orang</li>
+              <li>Level 5: <span class="font-bold">243</span> orang</li>
+              <li>Level 6: <span class="font-bold">729</span> orang</li>
+              <li>Level 7: <span class="font-bold">2.187</span> orang</li>
+              <li>Level 8: <span class="font-bold">6.561</span> orang</li>
+              <li>Level 9: <span class="font-bold">19.683</span> orang</li>
+              <li>Level 10: <span class="font-bold">59.049</span> orang</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+<!-- Section Komisi -->
+<section id="komisiSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">💸 Komisi Saya</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-3">
+      <h3 class="text-lg font-semibold text-purple-700 mb-2">Total Komisi</h3>
+      <p class="text-2xl font-bold text-green-600">Rp0</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+      <h4 class="text-md font-semibold text-purple-700 mb-1">Komisi Sponsor</h4>
+      <p class="text-lg font-bold text-gray-700">Rp0</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+      <h4 class="text-md font-semibold text-purple-700 mb-1">Komisi Matrix</h4>
+      <p class="text-lg font-bold text-gray-700">Rp0</p>
+    </div>
+  </div>
+</section>
+
+<!-- Section Riwayat Transaksi -->
+<section id="riwayatSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">📄 Riwayat Transaksi</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600 mb-4">Berikut adalah riwayat transaksi Anda:</p>
+    <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
+      <li>01/04/2025 - Pembelian Paket - Rp60.000</li>
+      <li>02/04/2025 - Komisi Sponsor - Rp6.000</li>
+      <li>05/04/2025 - Komisi Matrix Level 1 - Rp6.000</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Section BOP -->
+<section id="bopSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">📢 Business Opportunity Presentation (BOP)</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600">Ikuti presentasi peluang bisnis Parmina secara online dan offline. Informasi terbaru akan ditampilkan di sini.</p>
+    <ul class="mt-4 list-disc list-inside text-sm text-gray-700 space-y-2">
+      <li>09/04/2025 - Zoom Meeting: Peluang Bisnis Parmina (19.00 WIB)</li>
+      <li>12/04/2025 - Seminar Offline - Jakarta Selatan (10.00 WIB)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Section Bonus Reward -->
+<section id="bonusSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🎁 Bonus Reward</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-3">
+      <h3 class="text-xl font-semibold text-purple-700 mb-2">Status Bonus</h3>
+      <p class="text-gray-600">Selamat! Anda telah memenuhi syarat untuk bonus reward bulan ini.</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+      <h4 class="text-md font-semibold text-purple-700 mb-1">Level Anda</h4>
+      <p class="text-lg font-bold text-gray-700">Bronze</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+      <h4 class="text-md font-semibold text-purple-700 mb-1">Bonus yang Diterima</h4>
+      <p class="text-lg font-bold text-green-600">Rp150.000</p>
+    </div>
+  </div>
+</section>
+
+<!-- Section Webinar -->
+<section id="webinarSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🧑‍💻 Webinar</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600 mb-4">Ikuti webinar rutin yang diadakan oleh Parmina Network.</p>
+    <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
+      <li>10/04/2025 - Teknik Closing Efektif - 20.00 WIB</li>
+      <li>15/04/2025 - Duplikasi dan Duplikasi - 20.00 WIB</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Section Boost Seminar -->
+<section id="boostSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🎓 Boost Seminar</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600">Daftar seminar premium untuk mempercepat perkembangan bisnis Anda:</p>
+    <ul class="mt-4 list-disc list-inside text-sm text-gray-700 space-y-2">
+      <li>20/04/2025 - Training Pemimpin Hebat</li>
+      <li>27/04/2025 - Workshop Strategi Penjualan</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Section Galeri -->
+<section id="galeriSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🖼️ Galeri</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600 mb-4">Kumpulan dokumentasi event dan aktivitas Parmina Network:</p>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <img src="https://via.placeholder.com/150" class="rounded shadow-md" alt="Event 1">
+      <img src="https://via.placeholder.com/150" class="rounded shadow-md" alt="Event 2">
+      <img src="https://via.placeholder.com/150" class="rounded shadow-md" alt="Event 3">
+    </div>
+  </div>
+</section>
+
+<!-- Section Profil -->
+<section id="profilSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">👤 Profil & Akun</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600">Data pribadi dan pengaturan akun Anda.</p>
+    <ul class="mt-4 text-sm text-gray-700 space-y-2">
+      <li><strong>Nama:</strong> John Doe</li>
+      <li><strong>Email:</strong> johndoe@example.com</li>
+      <li><strong>Username:</strong> johndoe123</li>
+    </ul>
+  </div>
+</section>
+</main>
   </div>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyC6CD-KssIaBO0lGZbf5ymrH03uVfbNP-k",
-      authDomain: "parminanetwork.firebaseapp.com",
-      projectId: "parminanetwork",
-      storageBucket: "parminanetwork.firebasestorage.app",
-      messagingSenderId: "736943184054",
-      appId: "1:736943184054:web:31fed7a4d10442870e2e17"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const ref = urlParams.get('ref');
-      if (ref) {
-        document.getElementById('sponsorCodeInput').value = ref;
-      }
-      document.getElementById('name').focus();
-    });
-
-    async function findAutoParent(sponsorID) {
-      const queue = [sponsorID];
-      while (queue.length > 0) {
-        const currentID = queue.shift();
-        const doc = await db.collection("users").doc(currentID).get();
-        const data = doc.data();
-        if (!data || !data.downlines) continue;
-        if (data.downlines.length < 3) {
-          return currentID;
-        } else {
-          queue.push(...data.downlines);
-        }
-      }
-      return sponsorID;
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("hidden");
     }
 
-    async function register() {
-      const name = document.getElementById('name').value.trim();
-      const username = document.getElementById('username').value.trim().toLowerCase();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const sponsorCodeInput = document.getElementById('sponsorCodeInput').value.trim();
-      const errorMsg = document.getElementById('errorMsg');
-      const successMsg = document.getElementById('successMsg');
-      const registerButton = document.getElementById('registerButton');
+    function navigateMenu(menu) {
+      const sections = ['home', 'network', 'komisi', 'bonus', 'riwayat', 'bop', 'webinar', 'boost', 'galeri', 'profil'];
+      sections.forEach(id => {
+        const el = document.getElementById(id + 'Section');
+        if (el) el.classList.add('hidden');
+      });
 
-      errorMsg.textContent = "";
-      successMsg.textContent = "";
-
-      if (!name || !username || !email || !password || !confirmPassword || !sponsorCodeInput) {
-        errorMsg.textContent = "Isi semua kolom dengan lengkap!";
-        return;
-      }
-
-      if (!/^[a-zA-Z\s]+$/.test(name)) {
-        errorMsg.textContent = "Nama lengkap hanya boleh berisi huruf dan spasi!";
-        return;
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        errorMsg.textContent = "Format email tidak valid! Contoh: Harus contoh@email.com (gmail, hotmail, yahoo dll.)";
-        return;
-      }
-
-      if (password.length < 6) {
-        errorMsg.textContent = "Password minimal 6 karakter!";
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        errorMsg.textContent = "Password tidak cocok!";
-        return;
-      }
-
-      const blockedUsernames = ["admin", "support", "parmina", "root", "system"];
-      if (blockedUsernames.includes(username)) {
-        errorMsg.textContent = "Username tidak diperbolehkan. Silakan pilih yang lain.";
-        return;
-      }
-
-      try {
-        registerButton.disabled = true;
-        registerButton.textContent = "Mendaftarkan...";
-
-        const sponsorSnap = await db.collection("users")
-          .where("sponsorCode", "==", sponsorCodeInput)
-          .limit(1).get();
-
-        if (sponsorSnap.empty) {
-          errorMsg.textContent = "Kode Sponsor tidak valid! Tanyakan pada pengundang Anda!";
-          registerButton.disabled = false;
-          registerButton.textContent = "Daftar";
-          return;
-        }
-
-        const sponsorDoc = sponsorSnap.docs[0];
-        const sponsorID = sponsorDoc.id;
-
-        const codeCheck = await db.collection("users")
-          .where("sponsorCode", "==", username)
-          .limit(1).get();
-
-        if (!codeCheck.empty) {
-          errorMsg.textContent = "Username sudah dipakai, silakan pilih yang lain!";
-          registerButton.disabled = false;
-          registerButton.textContent = "Daftar";
-          return;
-        }
-
-        const parentID = await findAutoParent(sponsorID);
-        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-        const uid = userCredential.user.uid;
-
-        const user = firebase.auth().currentUser;
-        await user.sendEmailVerification();
-        window.location.href = "verifikasi.html";
-
-        await db.collection("users").doc(uid).set({
-          name,
-          email,
-          sponsorID,
-          sponsorCode: username,
-          parentID,
-          joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          downlines: [],
-          totalSales: 0
-        });
-
-        await db.collection("users").doc(parentID).update({
-          downlines: firebase.firestore.FieldValue.arrayUnion(uid)
-        });
-
-        successMsg.textContent = "Pendaftaran berhasil! Mengarahkan ke halaman login...";
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 3000);
-      } catch (error) {
-        if (error.code === "auth/email-already-in-use") {
-          errorMsg.textContent = "Email sudah terdaftar. Silakan gunakan email lain atau login.";
-        } else {
-          errorMsg.textContent = "Pendaftaran gagal: " + error.message;
-        }
-      } finally {
-        registerButton.disabled = false;
-        registerButton.textContent = "Daftar";
-      }
+      const selected = document.getElementById(menu + 'Section');
+      if (selected) selected.classList.remove('hidden');
     }
-  </script>
+  function logoutUser() {
+  alert("Anda telah logout!");
+  window.location.href = 'index.html';
+}
+</script>
 </body>
+
 </html>
