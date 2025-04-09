@@ -72,7 +72,7 @@
             const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
             const sponsor = sponsorDoc.data();
             if (sponsor) {
-              document.querySelector('#userSponsor')!.textContent = `${sponsor.nama} (${sponsor.email})`;
+              document.querySelector('#userSponsor').textContent = `${sponsor.nama} (${sponsor.email})`;
             }
           }
 
@@ -81,7 +81,7 @@
             const parentDoc = await db.collection('users').doc(data.parentID).get();
             const parent = parentDoc.data();
             if (parent) {
-              document.querySelector('#userParent')!.textContent = `${parent.nama} (${parent.email})`;
+              document.querySelector('#userParent').textContent = `${parent.nama} (${parent.email})`;
             }
           }
         }
