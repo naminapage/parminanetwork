@@ -34,9 +34,65 @@
       alert('Logout berhasil!');
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      navigateMenu('home');
-    });
+    document.addEventListener('DOMContentLoaded', async () => {
+  navigateMenu('home');
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC6CD-KssIaBO0lGZbf5ymrH03uVfbNP-k",
+    authDomain: "parminanetwork.firebaseapp.com",
+    projectId: "parminanetwork",
+    storageBucket: "parminanetwork.appspot.com",
+    messagingSenderId: "736943184054",
+    appId: "1:736943184054:web:31fed7a4d10442870e2e17"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+      try {
+        const snapshot = await db.collection('users').where('email', '==', user.email).get();
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data();
+
+          document.querySelector('#userName')?.textContent = data.nama || 'User';
+          document.querySelector('#personalPurchase')?.textContent = data.pembelianPribadi || 0;
+          document.querySelector('#networkOmzet')?.textContent = data.omzetJaringan || 0;
+
+          const statusEl = document.querySelector('#userStatus');
+          const aktif = data.statusAktif === true || data.isTopLevel === true;
+          if (statusEl) {
+            statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
+            statusEl.classList.remove('text-green-600', 'text-red-600');
+            statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
+          }
+
+          // Sponsor
+          if (data.sponsorID) {
+            const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
+            const sponsor = sponsorDoc.data();
+            if (sponsor) {
+              document.querySelector('#userSponsor')!.textContent = `${sponsor.nama} (${sponsor.email})`;
+            }
+          }
+
+          // Parent
+          if (data.parentID) {
+            const parentDoc = await db.collection('users').doc(data.parentID).get();
+            const parent = parentDoc.data();
+            if (parent) {
+              document.querySelector('#userParent')!.textContent = `${parent.nama} (${parent.email})`;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Gagal ambil data user:', e);
+      }
+    } else {
+      window.location.href = 'index.html';
+    }
+  });
+});
   </script>
   <style>
     #sidebar {
@@ -52,6 +108,9 @@
       transition: transform 0.3s ease;
     }
   </style>
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body class="bg-gray-100 font-sans">
