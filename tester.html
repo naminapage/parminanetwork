@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parmina Network Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script>
+    function navigateMenu(menu) {
+      const sections = document.querySelectorAll('main > section');
+      sections.forEach(sec => sec.classList.add('hidden'));
+      const target = document.getElementById(menu + 'Section');
+      if (target) target.classList.remove('hidden');
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('hidden');
+    }
+
+    function logoutUser() {
+      alert('Logout berhasil!');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      navigateMenu('home');
+    });
+  </script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+  <!-- Toggle mobile -->
+  <div class="md:hidden p-4 bg-white flex justify-between items-center shadow">
+    <button onclick="toggleSidebar()" class="text-purple-700">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <h2 class="text-xl font-bold text-purple-700">Parmina Network</h2>
+  </div>
+
+  <div class="flex min-h-screen relative">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-white shadow-lg p-6 space-y-6 hidden md:block md:relative z-30 h-full md:h-auto">
+      <h1 class="text-2xl font-bold text-purple-700">Parmina Network</h1>
+      <nav class="space-y-2">
+        <button onclick="navigateMenu('home')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🏠 Beranda</button>
+        <button onclick="navigateMenu('network')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🌿 Jaringan Saya</button>
+        <button onclick="navigateMenu('komisi')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">💸 Komisi Saya</button>
+        <button onclick="navigateMenu('bonus')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎁 Bonus Reward</button>
+        <button onclick="navigateMenu('riwayat')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📄 Riwayat Transaksi</button>
+        <button onclick="navigateMenu('bop')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📢 BOP</button>
+        <button onclick="navigateMenu('webinar')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🧑‍💻 Webinar</button>
+        <button onclick="navigateMenu('boost')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎓 Boost Seminar</button>
+        <button onclick="navigateMenu('galeri')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🖼️ Galeri</button>
+        <button onclick="navigateMenu('profil')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">👤 Profil & Akun</button>
+        <button onclick="logoutUser()" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-red-100 text-red-600 font-semibold">🚪 Logout</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto mt-16 md:mt-0">
+      <!-- Responsive content wrapper -->
+      <!-- Konten akan ditampilkan berdasarkan section yang dipilih -->
+    </main>
+  </div>
+</body>
+
+</html>
