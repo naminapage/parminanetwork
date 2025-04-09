@@ -56,8 +56,8 @@
 
 <body class="bg-gray-100 font-sans">
   <!-- Toggle Mobile Header -->
-  <div class="md:hidden p-4 bg-white flex justify-between items-center shadow fixed top-0 left-0 right-0 z-50">
-    <button onclick="toggleSidebar()" class="text-purple-700" id="menuButton">
+  <div class="p-4 bg-white flex justify-between items-center shadow fixed top-0 left-0 right-0 z-50">
+    <button onclick="toggleSidebar()" class="text-purple-700" id="menuButton" class="md:block">
       <svg id="menuIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path id="menuPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
@@ -85,11 +85,11 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 p-6 overflow-y-auto mt-16 md:mt-0 md:ml-64">
+    <main class="flex-1 px-4 sm:px-6 py-4 overflow-y-auto mt-16 md:mt-0 md:ml-64 max-w-7xl mx-auto">
       <section id="homeSection">
         <h2 class="text-3xl font-bold text-gray-800 mb-6">Selamat Datang, User</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="bg-white p-6 rounded-2xl shadow-lg col-span-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div class="bg-white p-6 rounded-2xl shadow-lg sm:col-span-2 md:col-span-3">
             <p class="text-gray-600">Status: <span class="font-semibold">Memuat...</span></p>
           </div>
           <div class="bg-white p-6 rounded-2xl shadow-lg">
@@ -246,9 +246,10 @@
       <h3 class="text-lg font-semibold text-purple-700 mb-1">Username</h3>
       <p class="text-gray-700">johndoe123</p>
     </div>
-    <div class="pt-4">
-      <button class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg transition">✏️ Edit Profil</button>
-      <button class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg ml-2 transition">🔑 Ganti Password</button>
+    <div class="pt-4 flex flex-col sm:flex-row sm:space-x-4">
+        <button class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg transition w-full sm:w-auto mb-2 sm:mb-0">✏️ Edit Profil</button>
+        <button class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg transition w-full sm:w-auto">🔑 Ganti Password</button>
+      </div>
     </div>
   </div>
 </section>
