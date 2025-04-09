@@ -11,91 +11,114 @@
 <body class="bg-gray-100 font-sans">
   <div class="flex h-screen overflow-hidden">
     <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-lg p-6 space-y-6">
+    <aside id="sidebar" class="w-64 bg-white shadow-lg p-6 space-y-6 hidden md:block">
       <h1 class="text-2xl font-bold text-purple-700">Parmina Network</h1>
       <nav class="space-y-2">
-        <a href="#" class="block py-2 px-4 rounded-lg bg-purple-100 text-purple-700 font-semibold">🏠 Beranda</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🌿 Jaringan Saya</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">💸 Komisi Saya</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎁 Bonus Reward</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📄 Riwayat Transaksi</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📢 BOP</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🧑‍💻 Webinar</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎓 Boost Seminar</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🖼️ Galeri</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">👤 Profil & Akun</a>
-        <a href="#" class="block py-2 px-4 rounded-lg hover:bg-red-100 text-red-600 font-semibold">🚪 Logout</a>
+        <button onclick="navigateMenu('home')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🏠 Beranda</button>
+        <button onclick="navigateMenu('network')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🌿 Jaringan Saya</button>
+        <button onclick="navigateMenu('komisi')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">💸 Komisi Saya</button>
+        <button onclick="navigateMenu('bonus')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎁 Bonus Reward</button>
+        <button onclick="navigateMenu('riwayat')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📄 Riwayat Transaksi</button>
+        <button onclick="navigateMenu('bop')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📢 BOP</button>
+        <button onclick="navigateMenu('webinar')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🧑‍💻 Webinar</button>
+        <button onclick="navigateMenu('boost')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎓 Boost Seminar</button>
+        <button onclick="navigateMenu('galeri')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🖼️ Galeri</button>
+        <button onclick="navigateMenu('profil')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">👤 Profil & Akun</button>
+        <button onclick="logoutUser()" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-red-100 text-red-600 font-semibold">🚪 Logout</button>
       </nav>
     </aside>
 
-    <!-- dashboard.html (struktur SPA 1 halaman) -->
-
-<!-- Section Beranda -->
-<section id="homeSection">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Welcome Card -->
-    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-1 md:col-span-2 lg:col-span-3">
-      <h3 class="text-xl font-semibold text-purple-700 mb-2">Selamat Datang, <span class="font-bold">User</span></h3>
-      <p class="text-gray-600">Status: <span class="font-medium">Memuat...</span></p>
+    <!-- Mobile toggle -->
+    <div class="md:hidden p-4 bg-white w-full flex justify-between items-center">
+      <button onclick="toggleSidebar()" class="text-purple-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <h2 class="text-xl font-bold text-purple-700">Parmina Network</h2>
     </div>
 
-    <!-- Pembelian Pribadi -->
-    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-      <h3 class="text-xl font-semibold text-purple-700 mb-2">Pembelian Pribadi</h3>
-      <p class="text-gray-600 text-lg font-bold">Rp0</p>
-    </div>
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <!-- Section Beranda -->
+      <section id="homeSection">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-3">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Selamat Datang, <span class="font-bold">User</span></h3>
+            <p class="text-gray-600">Status: <span class="font-medium">Memuat...</span></p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Pembelian Pribadi</h3>
+            <p class="text-gray-600 text-lg font-bold">Rp0</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Omzet Jaringan</h3>
+            <p class="text-gray-600 text-lg font-bold">Rp0</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Sponsor</h3>
+            <p class="text-gray-600">Memuat...</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <h3 class="text-xl font-semibold text-purple-700 mb-2">Upline</h3>
+            <p class="text-gray-600">Memuat...</p>
+          </div>
+        </div>
+      </section>
 
-    <!-- Omzet Jaringan -->
-    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-      <h3 class="text-xl font-semibold text-purple-700 mb-2">Omzet Jaringan</h3>
-      <p class="text-gray-600 text-lg font-bold">Rp0</p>
-    </div>
-
-    <!-- Sponsor -->
-    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-      <h3 class="text-xl font-semibold text-purple-700 mb-2">Sponsor</h3>
-      <p class="text-gray-600">Memuat...</p>
-    </div>
-
-    <!-- Upline -->
-    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-      <h3 class="text-xl font-semibold text-purple-700 mb-2">Upline</h3>
-      <p class="text-gray-600">Memuat...</p>
-    </div>
+      <!-- Section Jaringan -->
+      <section id="networkSection" class="hidden">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">🌿 Jaringan Saya</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-3">
+            <h3 class="text-xl font-semibold text-purple-700 mb-4">Level 1 (Frontline)</h3>
+            <ul class="text-gray-600 list-disc list-inside space-y-1">
+              <li><span class="font-bold">user001</span> - Cici</li>
+              <li><span class="font-bold">user002</span> - Dodi</li>
+              <li><span class="font-bold">user003</span> - Euis</li>
+            </ul>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-3">
+            <h3 class="text-xl font-semibold text-purple-700 mb-4">Level 2–10</h3>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>Level 2: <span class="font-bold">9</span> orang</li>
+              <li>Level 3: <span class="font-bold">27</span> orang</li>
+              <li>Level 4: <span class="font-bold">81</span> orang</li>
+              <li>Level 5: <span class="font-bold">243</span> orang</li>
+              <li>Level 6: <span class="font-bold">729</span> orang</li>
+              <li>Level 7: <span class="font-bold">2.187</span> orang</li>
+              <li>Level 8: <span class="font-bold">6.561</span> orang</li>
+              <li>Level 9: <span class="font-bold">19.683</span> orang</li>
+              <li>Level 10: <span class="font-bold">59.049</span> orang</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
-</section>
 
-<!-- Section Jaringan -->
-<section id="networkSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">🌿 Jaringan Saya</h2>
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("hidden");
+    }
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Downline Langsung (Level 1) -->
-    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-1 md:col-span-2 lg:col-span-3">
-      <h3 class="text-xl font-semibold text-purple-700 mb-4">Level 1 (Frontline)</h3>
-      <ul class="text-gray-600 list-disc list-inside space-y-1">
-        <li><span class="font-bold">user001</span> - Cici</li>
-        <li><span class="font-bold">user002</span> - Dodi</li>
-        <li><span class="font-bold">user003</span> - Euis</li>
-      </ul>
-    </div>
+    function navigateMenu(menu) {
+      const sections = ['home', 'network'];
+      sections.forEach(id => {
+        const el = document.getElementById(id + 'Section');
+        if (el) el.classList.add('hidden');
+      });
 
-    <!-- Jaringan Level 2-10 -->
-    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-1 md:col-span-2 lg:col-span-3">
-      <h3 class="text-xl font-semibold text-purple-700 mb-4">Level 2–10</h3>
-      <ul class="text-sm text-gray-600 space-y-1">
-        <li>Level 2: <span class="font-bold">9</span> orang</li>
-        <li>Level 3: <span class="font-bold">27</span> orang</li>
-        <li>Level 4: <span class="font-bold">81</span> orang</li>
-        <li>Level 5: <span class="font-bold">243</span> orang</li>
-        <li>Level 6: <span class="font-bold">729</span> orang</li>
-        <li>Level 7: <span class="font-bold">2.187</span> orang</li>
-        <li>Level 8: <span class="font-bold">6.561</span> orang</li>
-        <li>Level 9: <span class="font-bold">19.683</span> orang</li>
-        <li>Level 10: <span class="font-bold">59.049</span> orang</li>
-      </ul>
-    </div>
-  </div>
-</section>
+      const selected = document.getElementById(menu + 'Section');
+      if (selected) selected.classList.remove('hidden');
+    }
+  function logoutUser() {
+  alert("Anda telah logout!");
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+
+</html>
