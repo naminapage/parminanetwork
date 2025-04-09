@@ -53,67 +53,56 @@
   const db = firebase.firestore();
 
   firebase.auth().onAuthStateChanged(async (user) => {
-    if (user) {
-      try {
-        const snapshot = await db.collection('users').where('email', '==', user.email).get();
-        if (!snapshot.empty) {
-          const data = snapshot.docs[0].data();
+  if (user) {
+    try {
+      const snapshot = await db.collection('users').where('email', '==', user.email).get();
+      if (!snapshot.empty) {
+        const data = snapshot.docs[0].data();
 
-          const nameEl = document.querySelector('#userName'); if (nameEl) nameEl.textContent = data.name || 'User';
-          const purchaseEl = document.querySelector('#personalPurchase'); if (purchaseEl) purchaseEl.textContent = data.pembelianPribadi || 0;
-          const omzetEl = document.querySelector('#networkOmzet'); if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
+        const nameEl = document.querySelector('#userName');
+        if (nameEl) nameEl.textContent = data.name || 'User';
 
-          const statusEl = document.querySelector('#userStatus');
-          const aktif = data.statusAktif === true || data.isTopLevel === true;
-          if (statusEl) {
-            statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
-            statusEl.classList.remove('text-green-600', 'text-red-600');
-            statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
-          }
+        const purchaseEl = document.querySelector('#personalPurchase');
+        if (purchaseEl) purchaseEl.textContent = data.pembelianPribadi || 0;
 
-          // Sponsor
-          if (data.sponsorID && data.sponsorID !== 'root') {
-            const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
-            const sponsor = sponsorDoc.data();
-if (sponsor) {
-  const sponsorEl = document.querySelector('#userSponsor');
-  if (sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
-}
-} else {
-  const sponsorEl = document.querySelector('#userSponsor');
-  if (sponsorEl) sponsorEl.textContent = 'Top Leader (admin)';
-}
-          } else {
-            const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = 'Top Leader (admin)';
-          } (${sponsor.email})`;
-            }
-          }
+        const omzetEl = document.querySelector('#networkOmzet');
+        if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
-          // Parent
-          if (data.parentID && data.parentID !== 'root') {
-            const parentDoc = await db.collection('users').doc(data.parentID).get();
-            const parent = parentDoc.data();
-if (parent) {
-  const parentEl = document.querySelector('#userParent');
-  if (parentEl) parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
-}
-} else {
-  const parentEl = document.querySelector('#userParent');
-  if (parentEl) parentEl.textContent = 'Top Leader (admin)';
-}
-          } else {
-            const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = 'Top Leader (admin)';
-          } (${parent.email})`;
-            }
-          }
+        const statusEl = document.querySelector('#userStatus');
+        const aktif = data.statusAktif === true || data.isTopLevel === true;
+        if (statusEl) {
+          statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
+          statusEl.classList.remove('text-green-600', 'text-red-600');
+          statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
         }
-      } catch (e) {
-        console.error('Gagal ambil data user:', e);
+
+        // Sponsor
+        const sponsorEl = document.querySelector('#userSponsor');
+        if (data.sponsorID && data.sponsorID !== 'root') {
+          const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
+          const sponsor = sponsorDoc.data();
+          if (sponsor && sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
+        } else if (sponsorEl) {
+          sponsorEl.textContent = 'Top Leader (admin)';
+        }
+
+        // Parent
+        const parentEl = document.querySelector('#userParent');
+        if (data.parentID && data.parentID !== 'root') {
+          const parentDoc = await db.collection('users').doc(data.parentID).get();
+          const parent = parentDoc.data();
+          if (parent && parentEl) parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
+        } else if (parentEl) {
+          parentEl.textContent = 'Top Leader (admin)';
+        }
       }
-    } else {
-      window.location.href = 'index.html';
+    } catch (e) {
+      console.error('Gagal ambil data user:', e);
     }
-  });
+  } else {
+    window.location.href = 'index.html';
+  }
+});
 });
   </script>
   <style>
