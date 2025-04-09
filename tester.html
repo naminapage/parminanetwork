@@ -19,9 +19,12 @@
 }
 
     function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('hidden');
-    }
+  const sidebar = document.getElementById('sidebar');
+  const menuPath = document.getElementById('menuPath');
+  const isHidden = sidebar.classList.contains('hidden');
+  sidebar.classList.toggle('hidden');
+  menuPath.setAttribute("d", isHidden ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16");
+}
 
     function logoutUser() {
       alert('Logout berhasil!');
@@ -36,9 +39,9 @@
 <body class="bg-gray-100 font-sans">
   <!-- Toggle mobile -->
   <div class="md:hidden p-4 bg-white flex justify-between items-center shadow">
-    <button onclick="toggleSidebar()" class="text-purple-700">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    <button onclick="toggleSidebar()" class="text-purple-700" id="menuButton">
+      <svg id="menuIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path id="menuPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
     </button>
     <h2 class="text-xl font-bold text-purple-700">Parmina Network</h2>
