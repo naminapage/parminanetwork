@@ -13,8 +13,10 @@
   const target = document.getElementById(menu + 'Section');
   if (target) target.classList.remove('hidden');
   if (window.innerWidth < 768) {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.add('hidden');
+  const sidebar = document.getElementById('sidebar');
+  const menuPath = document.getElementById('menuPath');
+  sidebar.classList.add('hidden');
+  menuPath.setAttribute("d", "M4 6h16M4 12h16M4 18h16");
   }
 }
 
