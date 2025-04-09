@@ -72,8 +72,7 @@
             const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
             const sponsor = sponsorDoc.data();
             if (sponsor) {
-              const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
-            }
+              const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama}
           } else {
             const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = 'Top Leader (admin)';
           } (${sponsor.email})`;
@@ -85,8 +84,7 @@
             const parentDoc = await db.collection('users').doc(data.parentID).get();
             const parent = parentDoc.data();
             if (parent) {
-              const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
-            }
+              const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = `${parent.name || parent.nama}
           } else {
             const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = 'Top Leader (admin)';
           } (${parent.email})`;
