@@ -114,6 +114,100 @@
     </div>
   </div>
 </section>
+
+<!-- Section Riwayat Transaksi -->
+<section id="riwayatSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">📄 Riwayat Transaksi</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600 mb-4">Berikut adalah riwayat transaksi Anda:</p>
+    <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
+      <li>01/04/2025 - Pembelian Paket - Rp60.000</li>
+      <li>02/04/2025 - Komisi Sponsor - Rp6.000</li>
+      <li>05/04/2025 - Komisi Matrix Level 1 - Rp6.000</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Section BOP -->
+<section id="bopSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">📢 Business Opportunity Presentation (BOP)</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600">Ikuti presentasi peluang bisnis Parmina secara online dan offline. Informasi terbaru akan ditampilkan di sini.</p>
+    <ul class="mt-4 list-disc list-inside text-sm text-gray-700 space-y-2">
+      <li>09/04/2025 - Zoom Meeting: Peluang Bisnis Parmina (19.00 WIB)</li>
+      <li>12/04/2025 - Seminar Offline - Jakarta Selatan (10.00 WIB)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Section Bonus Reward -->
+<section id="bonusSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🎁 Bonus Reward</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow col-span-3">
+      <h3 class="text-xl font-semibold text-purple-700 mb-2">Status Bonus</h3>
+      <p class="text-gray-600">Selamat! Anda telah memenuhi syarat untuk bonus reward bulan ini.</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+      <h4 class="text-md font-semibold text-purple-700 mb-1">Level Anda</h4>
+      <p class="text-lg font-bold text-gray-700">Bronze</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+      <h4 class="text-md font-semibold text-purple-700 mb-1">Bonus yang Diterima</h4>
+      <p class="text-lg font-bold text-green-600">Rp150.000</p>
+    </div>
+  </div>
+</section>
+
+<!-- Section Webinar -->
+<section id="webinarSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🧑‍💻 Webinar</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600 mb-4">Ikuti webinar rutin yang diadakan oleh Parmina Network.</p>
+    <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
+      <li>10/04/2025 - Teknik Closing Efektif - 20.00 WIB</li>
+      <li>15/04/2025 - Duplikasi dan Duplikasi - 20.00 WIB</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Section Boost Seminar -->
+<section id="boostSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🎓 Boost Seminar</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600">Daftar seminar premium untuk mempercepat perkembangan bisnis Anda:</p>
+    <ul class="mt-4 list-disc list-inside text-sm text-gray-700 space-y-2">
+      <li>20/04/2025 - Training Pemimpin Hebat</li>
+      <li>27/04/2025 - Workshop Strategi Penjualan</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Section Galeri -->
+<section id="galeriSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🖼️ Galeri</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600 mb-4">Kumpulan dokumentasi event dan aktivitas Parmina Network:</p>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <img src="https://via.placeholder.com/150" class="rounded shadow-md" alt="Event 1">
+      <img src="https://via.placeholder.com/150" class="rounded shadow-md" alt="Event 2">
+      <img src="https://via.placeholder.com/150" class="rounded shadow-md" alt="Event 3">
+    </div>
+  </div>
+</section>
+
+<!-- Section Profil -->
+<section id="profilSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">👤 Profil & Akun</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <p class="text-gray-600">Data pribadi dan pengaturan akun Anda.</p>
+    <ul class="mt-4 text-sm text-gray-700 space-y-2">
+      <li><strong>Nama:</strong> John Doe</li>
+      <li><strong>Email:</strong> johndoe@example.com</li>
+      <li><strong>Username:</strong> johndoe123</li>
+    </ul>
+  </div>
+</section>
 </main>
   </div>
 
@@ -124,7 +218,7 @@
     }
 
     function navigateMenu(menu) {
-      const sections = ['home', 'network', 'komisi'];
+      const sections = ['home', 'network', 'komisi', 'bonus', 'riwayat', 'bop', 'webinar', 'boost', 'galeri', 'profil'];
       sections.forEach(id => {
         const el = document.getElementById(id + 'Section');
         if (el) el.classList.add('hidden');
