@@ -55,9 +55,9 @@
         if (!snapshot.empty) {
           const data = snapshot.docs[0].data();
 
-          document.querySelector('#userName')?.textContent = data.nama || 'User';
-          document.querySelector('#personalPurchase')?.textContent = data.pembelianPribadi || 0;
-          document.querySelector('#networkOmzet')?.textContent = data.omzetJaringan || 0;
+          const nameEl = document.querySelector('#userName'); if (nameEl) nameEl.textContent = data.nama || 'User';
+          const purchaseEl = document.querySelector('#personalPurchase'); if (purchaseEl) purchaseEl.textContent = data.pembelianPribadi || 0;
+          const omzetEl = document.querySelector('#networkOmzet'); if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
           const statusEl = document.querySelector('#userStatus');
           const aktif = data.statusAktif === true || data.isTopLevel === true;
@@ -72,7 +72,7 @@
             const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
             const sponsor = sponsorDoc.data();
             if (sponsor) {
-              document.querySelector('#userSponsor').textContent = `${sponsor.nama} (${sponsor.email})`;
+              const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = `${sponsor.nama} (${sponsor.email})`;
             }
           }
 
@@ -81,7 +81,7 @@
             const parentDoc = await db.collection('users').doc(data.parentID).get();
             const parent = parentDoc.data();
             if (parent) {
-              document.querySelector('#userParent').textContent = `${parent.nama} (${parent.email})`;
+              const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = `${parent.nama} (${parent.email})`;
             }
           }
         }
