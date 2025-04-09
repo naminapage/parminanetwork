@@ -31,8 +31,12 @@
     }
 
     function logoutUser() {
-      alert('Logout berhasil!');
-    }
+  firebase.auth().signOut().then(() => {
+    window.location.href = 'index.html';
+  }).catch((error) => {
+    console.error('Gagal logout:', error);
+  });
+}
 
     document.addEventListener('DOMContentLoaded', async () => {
   navigateMenu('home');
@@ -71,8 +75,14 @@
           if (data.sponsorID && data.sponsorID !== 'root') {
             const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
             const sponsor = sponsorDoc.data();
-            if (sponsor) {
-              const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama}
+if (sponsor) {
+  const sponsorEl = document.querySelector('#userSponsor');
+  if (sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
+}
+} else {
+  const sponsorEl = document.querySelector('#userSponsor');
+  if (sponsorEl) sponsorEl.textContent = 'Top Leader (admin)';
+}
           } else {
             const sponsorEl = document.querySelector('#userSponsor'); if (sponsorEl) sponsorEl.textContent = 'Top Leader (admin)';
           } (${sponsor.email})`;
@@ -83,8 +93,14 @@
           if (data.parentID && data.parentID !== 'root') {
             const parentDoc = await db.collection('users').doc(data.parentID).get();
             const parent = parentDoc.data();
-            if (parent) {
-              const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = `${parent.name || parent.nama}
+if (parent) {
+  const parentEl = document.querySelector('#userParent');
+  if (parentEl) parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
+}
+} else {
+  const parentEl = document.querySelector('#userParent');
+  if (parentEl) parentEl.textContent = 'Top Leader (admin)';
+}
           } else {
             const parentEl = document.querySelector('#userParent'); if (parentEl) parentEl.textContent = 'Top Leader (admin)';
           } (${parent.email})`;
