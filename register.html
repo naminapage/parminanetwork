@@ -145,16 +145,22 @@
         await user.sendEmailVerification();
         window.location.href = "verifikasi.html";
 
-        await db.collection("users").doc(uid).set({
+        await db.collection("users").doc(username).set({
           name,
+          username,
           email,
           sponsorID,
           sponsorCode: username,
           parentID,
           joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
           downlines: [],
-          totalSales: 0
+          totalSales: 0,
+          pembelianPribadi: 0,
+          omzetJaringan: 0,
+          statusAktif: true,
+          isTopLevel: false
         });
+
 
         await db.collection("users").doc(parentID).update({
           downlines: firebase.firestore.FieldValue.arrayUnion(uid)
