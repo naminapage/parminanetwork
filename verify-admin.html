@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <h1>Verifikasi Admin Manual</h1>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC6CD-KssIaBO0lGZbf5ymrH03uVfbNP-k",
+      authDomain: "parminanetwork.firebaseapp.com",
+      projectId: "parminanetwork",
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Masukkan email & password admin
+    firebase.auth().signInWithEmailAndPassword("admin001@gmail.com", "passwordadminmu")
+      .then(userCred => {
+        const user = userCred.user;
+        user.sendEmailVerification().then(() => {
+          alert("Email verifikasi sudah dikirim!");
+          firebase.auth().signOut();
+        });
+      })
+      .catch(error => {
+        console.error("Gagal login:", error.message);
+      });
+  </script>
+</body>
+</html>
