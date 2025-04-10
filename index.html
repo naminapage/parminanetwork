@@ -98,6 +98,7 @@
       const email = emailInput.value.trim();
       resetInfo.textContent = "";
       loginError.textContent = "";
+      emailError.textContent = "";
 
       if (!email) {
         emailError.textContent = "Masukkan email terlebih dahulu untuk reset password.";
@@ -105,15 +106,19 @@
       }
 
       try {
+        const methods = await firebase.auth().fetchSignInMethodsForEmail(email);
+        if (methods.length === 0) {
+          loginError.textContent = "Email belum terdaftar!";
+          return;
+        }
+
         await firebase.auth().sendPasswordResetEmail(email);
         resetInfo.textContent = "Email reset password telah dikirim. Silakan cek email Anda!";
       } catch (error) {
-        if (error.code === 'auth/user-not-found') {
-          loginError.textContent = "Email tidak ditemukan! Pastikan sudah terdaftar.";
-        } else {
-          loginError.textContent = "Gagal kirim reset password: " + error.message;
-        }
+        console.error("Reset Password Error:", error);
+        loginError.textContent = "Terjadi kesalahan saat mengirim email reset.";
       }
+     }
     }
   </script>
 </body>
