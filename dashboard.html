@@ -69,7 +69,23 @@
         if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
         const statusEl = document.querySelector('#userStatus');
-        const aktif = data.statusAktif === true || data.isTopLevel === true;
+        let aktif = false;
+        try {
+          const now = new Date();
+          const awal = new Date(now.getFullYear(), now.getMonth(), 1);
+          const akhir = new Date(now.getFullYear(), now.getMonth(), 25); // tutup buku tiap tgl 25
+
+          const transaksiSnapshot = await db.collection("transaksi")
+            .where("userID", "==", data.username)
+            .get();
+
+          transaksiSnapshot.forEach(doc => {
+            const tgl = doc.data().tanggal.toDate();
+            if (tgl >= awal && tgl <= akhir) aktif = true;
+          });
+        } catch (err) {
+          console.error("Gagal cek transaksi:", err);
+        }
         if (statusEl) {
           statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
           statusEl.classList.remove('text-green-600', 'text-red-600');
