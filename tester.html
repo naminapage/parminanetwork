@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parmina Network Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
   <script>
     function navigateMenu(menu) {
       const sections = document.querySelectorAll('main > section');
@@ -138,9 +141,48 @@
       transition: transform 0.3s ease;
     }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-100 font-sans">
-<!-- ✅ Konten dashboard aman & tidak diubah -->
+  <!-- Toggle button + sidebar dummy -->
+  <div class="p-4 bg-white flex justify-between items-center md:hidden">
+    <button onclick="toggleSidebar()">
+      <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path id="menuPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <h1 class="text-lg font-bold text-green-700">PARMINA NETWORK</h1>
+  </div>
+
+  <aside id="sidebar" class="bg-white w-64 fixed md:relative z-50 h-full shadow-lg hidden md:block">
+    <div class="p-4">
+      <h2 class="text-xl font-bold text-green-700 mb-4">Menu</h2>
+      <nav>
+        <ul class="space-y-2">
+          <li><button onclick="navigateMenu('home')">🏠 Beranda</button></li>
+          <li><button onclick="navigateMenu('network')">🌿 Jaringan Saya</button></li>
+          <li><button onclick="navigateMenu('komisi')">💸 Komisi Saya</button></li>
+          <li><button onclick="navigateMenu('bonus')">🎁 Bonus Reward</button></li>
+          <li><button onclick="navigateMenu('riwayat')">📄 Riwayat Transaksi</button></li>
+          <li><button onclick="navigateMenu('bop')">📢 BOP</button></li>
+          <li><button onclick="navigateMenu('webinar')">🧑‍💻 Webinar</button></li>
+          <li><button onclick="navigateMenu('seminar')">🎓 Boost Seminar</button></li>
+          <li><button onclick="navigateMenu('galeri')">🖼️ Galeri</button></li>
+          <li><button onclick="navigateMenu('profil')">👤 Profil & Akun</button></li>
+          <li><button onclick="logoutUser()" class="text-red-600">🚪 Logout</button></li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="md:ml-64 p-4">
+    <section id="homeSection">
+      <h1 class="text-2xl font-bold text-green-700 mb-4">Selamat Datang, <span id="userName">User</span></h1>
+      <p><strong>Status:</strong> <span id="userStatus" class="font-semibold">Memuat...</span></p>
+      <p><strong>Pembelian Pribadi:</strong> Rp<span id="personalPurchase">0</span></p>
+      <p><strong>Omzet Jaringan:</strong> Rp<span id="networkOmzet">0</span></p>
+      <p><strong>Sponsor:</strong> <span id="userSponsor">Memuat...</span></p>
+      <p><strong>Upline:</strong> <span id="userParent">Memuat...</span></p>
+    </section>
+  </main>
+</body>
+</html>
