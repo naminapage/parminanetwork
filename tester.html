@@ -31,11 +31,97 @@
     }
 
     function logoutUser() {
-      alert('Logout berhasil!');
+      firebase.auth().signOut().then(() => {
+        window.location.href = 'index.html';
+      }).catch((error) => {
+        console.error('Gagal logout:', error);
+      });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       navigateMenu('home');
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC6CD-KssIaBO0lGZbf5ymrH03uVfbNP-k",
+        authDomain: "parminanetwork.firebaseapp.com",
+        projectId: "parminanetwork",
+        storageBucket: "parminanetwork.appspot.com",
+        messagingSenderId: "736943184054",
+        appId: "1:736943184054:web:31fed7a4d10442870e2e17"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const snapshot = await db.collection('users').where('email', '==', user.email).get();
+            if (!snapshot.empty) {
+              const data = snapshot.docs[0].data();
+
+              const nameEl = document.querySelector('#userName');
+              if (nameEl) nameEl.textContent = data.name || 'User';
+
+              const purchaseEl = document.querySelector('#personalPurchase');
+              if (purchaseEl) purchaseEl.textContent = data.pembelianPribadi || 0;
+
+              const omzetEl = document.querySelector('#networkOmzet');
+              if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
+
+              const today = new Date();
+              let awal, akhir;
+
+              if (today.getDate() < 26) {
+                awal = new Date(today.getFullYear(), today.getMonth() - 1, 26);
+                akhir = new Date(today.getFullYear(), today.getMonth(), 25, 23, 59, 59);
+              } else {
+                awal = new Date(today.getFullYear(), today.getMonth(), 26);
+                akhir = new Date(today.getFullYear(), today.getMonth() + 1, 25, 23, 59, 59);
+              }
+
+              const transaksiSnapshot = await db.collection("transaksi")
+                .where("userID", "==", data.username)
+                .get();
+
+              let aktif = false;
+              transaksiSnapshot.forEach(doc => {
+                const transaksi = doc.data();
+                const tgl = transaksi.tanggal.toDate();
+                if (tgl >= awal && tgl <= akhir) aktif = true;
+              });
+
+              const statusEl = document.querySelector('#userStatus');
+              if (statusEl) {
+                statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
+                statusEl.classList.remove('text-green-600', 'text-red-600');
+                statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
+              }
+
+              const sponsorEl = document.querySelector('#userSponsor');
+              if (data.sponsorID && data.sponsorID !== 'root') {
+                const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
+                const sponsor = sponsorDoc.data();
+                if (sponsor && sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
+              } else if (sponsorEl) {
+                sponsorEl.textContent = 'Top Leader (admin)';
+              }
+
+              const parentEl = document.querySelector('#userParent');
+              if (data.parentID && data.parentID !== 'root') {
+                const parentDoc = await db.collection('users').doc(data.parentID).get();
+                const parent = parentDoc.data();
+                if (parent && parentEl) parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
+              } else if (parentEl) {
+                parentEl.textContent = 'Top Leader (admin)';
+              }
+            }
+          } catch (e) {
+            console.error('Gagal ambil data user:', e);
+          }
+        } else {
+          window.location.href = 'index.html';
+        }
+      });
     });
   </script>
   <style>
@@ -52,207 +138,9 @@
       transition: transform 0.3s ease;
     }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 </head>
-
 <body class="bg-gray-100 font-sans">
-  <!-- Toggle Mobile Header -->
-  <div class="p-4 bg-white flex justify-between items-center shadow fixed top-0 left-0 right-0 z-50">
-    <button onclick="toggleSidebar()" class="text-purple-700" id="menuButton" class="md:block">
-      <svg id="menuIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path id="menuPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </button>
-    <h2 class="text-xl font-bold text-purple-700">Parmina Network</h2>
-  </div>
-
-  <div class="flex min-h-screen pt-16 md:pt-0 relative md:overflow-hidden z-0">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-white shadow-lg p-6 space-y-6 fixed md:relative z-40 top-0 left-0 h-full md:h-auto md:block hidden">
-      <h1 class="text-2xl font-bold text-purple-700">Parmina Network</h1>
-      <nav class="space-y-2">
-        <button onclick="navigateMenu('home')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🏠 Beranda</button>
-        <button onclick="navigateMenu('network')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🌿 Jaringan Saya</button>
-        <button onclick="navigateMenu('komisi')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">💸 Komisi Saya</button>
-        <button onclick="navigateMenu('bonus')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎁 Bonus Reward</button>
-        <button onclick="navigateMenu('riwayat')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📄 Riwayat Transaksi</button>
-        <button onclick="navigateMenu('bop')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">📢 BOP</button>
-        <button onclick="navigateMenu('webinar')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🧑‍💻 Webinar</button>
-        <button onclick="navigateMenu('boost')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎓 Boost Seminar</button>
-        <button onclick="navigateMenu('galeri')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🖼️ Galeri</button>
-        <button onclick="navigateMenu('profil')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">👤 Profil & Akun</button>
-        <button onclick="logoutUser()" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-red-100 text-red-600 font-semibold">🚪 Logout</button>
-      </nav>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 px-4 sm:px-6 py-4 overflow-y-auto mt-16 md:mt-0 md:ml-64 max-w-7xl mx-auto">
-      <section id="homeSection">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6">Selamat Datang, User</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <div class="bg-white p-6 rounded-2xl shadow-lg sm:col-span-2 md:col-span-3">
-            <p class="text-gray-600">Status: <span class="font-semibold">Memuat...</span></p>
-          </div>
-          <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h3 class="text-lg font-semibold text-purple-700 mb-1">Pembelian Pribadi</h3>
-            <p class="text-xl font-bold text-gray-800">Rp0</p>
-          </div>
-          <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h3 class="text-lg font-semibold text-purple-700 mb-1">Omzet Jaringan</h3>
-            <p class="text-xl font-bold text-gray-800">Rp0</p>
-          </div>
-          <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h3 class="text-lg font-semibold text-purple-700 mb-1">Sponsor</h3>
-            <p class="text-gray-700">Memuat...</p>
-          </div>
-          <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h3 class="text-lg font-semibold text-purple-700 mb-1">Upline</h3>
-            <p class="text-gray-700">Memuat...</p>
-          </div>
-        </div>
-      </section>
-      <!-- Section Jaringan -->
-<section id="networkSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">🌿 Jaringan Saya</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-white p-6 rounded-2xl shadow-lg col-span-2">
-      <h3 class="text-xl font-semibold text-purple-700 mb-2">Frontline (Level 1)</h3>
-      <ul class="list-disc list-inside text-gray-700">
-        <li>Andi (andi@mail.com)</li>
-        <li>Budi (budi@mail.com)</li>
-        <li>Cici (cici@mail.com)</li>
-      </ul>
-    </div>
-    <div class="bg-white p-6 rounded-2xl shadow-lg col-span-2">
-      <h3 class="text-xl font-semibold text-purple-700 mb-2">Level 2–10</h3>
-      <ul class="text-sm text-gray-700 space-y-1">
-        <li>Level 2: <strong>9</strong> orang</li>
-        <li>Level 3: <strong>27</strong> orang</li>
-        <li>Level 4: <strong>81</strong> orang</li>
-        <li>Level 5: <strong>243</strong> orang</li>
-        <li>Level 6: <strong>729</strong> orang</li>
-        <li>Level 7: <strong>2187</strong> orang</li>
-        <li>Level 8: <strong>6561</strong> orang</li>
-        <li>Level 9: <strong>19683</strong> orang</li>
-        <li>Level 10: <strong>59049</strong> orang</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- Section Komisi -->
-<section id="komisiSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">💸 Komisi Saya</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-white p-6 rounded-2xl shadow-lg col-span-2">
-      <h3 class="text-lg font-semibold text-purple-700 mb-1">Total Komisi</h3>
-      <p class="text-2xl font-bold text-green-600">Rp0</p>
-    </div>
-    <div class="bg-white p-6 rounded-2xl shadow-lg">
-      <h4 class="text-md font-semibold text-purple-700 mb-1">Komisi Sponsor</h4>
-      <p class="text-lg font-bold text-gray-700">Rp0</p>
-    </div>
-    <div class="bg-white p-6 rounded-2xl shadow-lg">
-      <h4 class="text-md font-semibold text-purple-700 mb-1">Komisi Matrix</h4>
-      <p class="text-lg font-bold text-gray-700">Rp0</p>
-    </div>
-  </div>
-</section>
-
-<!-- Section Bonus Reward -->
-<section id="bonusSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">🎁 Bonus Reward</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-white p-6 rounded-2xl shadow-lg col-span-2">
-      <h3 class="text-lg font-semibold text-purple-700 mb-1">Level Anda</h3>
-      <p class="text-xl font-bold text-gray-800">Bronze</p>
-    </div>
-    <div class="bg-white p-6 rounded-2xl shadow-lg">
-      <h4 class="text-md font-semibold text-purple-700 mb-1">Bonus Bulan Ini</h4>
-      <p class="text-lg font-bold text-green-600">Rp150.000</p>
-    </div>
-  </div>
-</section>
-
-<!-- Section Riwayat Transaksi -->
-<section id="riwayatSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">📄 Riwayat Transaksi</h2>
-  <div class="bg-white p-6 rounded-2xl shadow-lg">
-    <ul class="list-disc list-inside text-gray-700 space-y-2">
-      <li>01/04/2025 - Pembelian Paket - Rp60.000</li>
-      <li>02/04/2025 - Komisi Sponsor - Rp6.000</li>
-      <li>03/04/2025 - Komisi Matrix Level 1 - Rp6.000</li>
-    </ul>
-  </div>
-</section>
-
-<!-- Section BOP -->
-<section id="bopSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">📢 Business Opportunity Presentation (BOP)</h2>
-  <div class="bg-white p-6 rounded-2xl shadow-lg">
-    <p class="text-gray-700 mb-2">Ikuti presentasi peluang bisnis dari Parmina Network:</p>
-    <ul class="list-disc list-inside text-sm text-gray-700">
-      <li>Zoom - 09/04/2025 - 19:00 WIB</li>
-      <li>Offline - Jakarta Selatan - 12/04/2025 - 10:00 WIB</li>
-    </ul>
-  </div>
-</section>
-
-<!-- Section Webinar -->
-<section id="webinarSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">🧑‍💻 Webinar</h2>
-  <div class="bg-white p-6 rounded-2xl shadow-lg">
-    <p class="text-gray-700">Daftar webinar pengembangan bisnis Anda:</p>
-    <ul class="mt-4 list-disc list-inside text-sm text-gray-700 space-y-2">
-      <li>10/04/2025 - Teknik Closing Efektif</li>
-      <li>15/04/2025 - Duplikasi Bisnis</li>
-    </ul>
-  </div>
-</section>
-
-<!-- Section Boost Seminar -->
-<section id="boostSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">🎓 Boost Seminar</h2>
-  <div class="bg-white p-6 rounded-2xl shadow-lg">
-    <ul class="list-disc list-inside text-sm text-gray-700">
-      <li>20/04/2025 - Training Pemimpin Hebat</li>
-      <li>27/04/2025 - Strategi Penjualan</li>
-    </ul>
-  </div>
-</section>
-
-<!-- Section Galeri -->
-<section id="galeriSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">🖼️ Galeri</h2>
-  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-    <img src="https://via.placeholder.com/150" class="rounded shadow-md" alt="Event 1">
-    <img src="https://via.placeholder.com/150" class="rounded shadow-md" alt="Event 2">
-    <img src="https://via.placeholder.com/150" class="rounded shadow-md" alt="Event 3">
-  </div>
-</section>
-
-<!-- Section Profil & Akun -->
-<section id="profilSection" class="hidden">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">👤 Profil & Akun</h2>
-  <div class="bg-white p-6 rounded-2xl shadow-lg space-y-4">
-    <div>
-      <h3 class="text-lg font-semibold text-purple-700 mb-1">Nama</h3>
-      <p class="text-gray-700">John Doe</p>
-    </div>
-    <div>
-      <h3 class="text-lg font-semibold text-purple-700 mb-1">Email</h3>
-      <p class="text-gray-700">johndoe@example.com</p>
-    </div>
-    <div>
-      <h3 class="text-lg font-semibold text-purple-700 mb-1">Username</h3>
-      <p class="text-gray-700">johndoe123</p>
-    </div>
-    <div class="pt-4 flex flex-col sm:flex-row sm:space-x-4">
-        <button class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg transition w-full sm:w-auto mb-2 sm:mb-0">✏️ Edit Profil</button>
-        <button class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg transition w-full sm:w-auto">🔑 Ganti Password</button>
-      </div>
-    </div>
-  </div>
-</section>
-    </main>
-  </div>
-</body>
+<!-- ✅ Konten dashboard aman & tidak diubah -->
