@@ -1,191 +1,104 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - Parmina Network</title>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
-    <h1 class="text-2xl font-bold mb-4 text-center">Daftar Member Baru</h1>
-    <input type="text" id="name" placeholder="Nama Lengkap" class="w-full p-2 mb-3 border rounded" />
-    <input type="text" id="username" placeholder="Username (unik, jadi kode sponsor Anda)" class="w-full p-2 mb-3 border rounded" />
-    <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 border rounded" />
-    <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 border rounded" />
-    <input type="password" id="confirmPassword" placeholder="Konfirmasi Password" class="w-full p-2 mb-3 border rounded" />
-    <input type="text" id="sponsorCodeInput" placeholder="Kode Sponsor dari Pengundang" class="w-full p-2 mb-3 border rounded" />
-    <button onclick="register()" id="registerButton" class="w-full bg-green-600 text-white p-2 rounded">Daftar</button>
-    <p class="text-sm text-center mt-4">Sudah punya akun? <a href="index.html" class="text-blue-500">Login</a></p>
-    <p id="errorMsg" class="text-red-500 text-sm mt-2 text-center"></p>
-    <p id="successMsg" class="text-green-600 text-sm mt-2 text-center"></p>
-  </div>
+<script>
+  async function register() {
+    const name = document.getElementById('name').value.trim();
+    const username = document.getElementById('username').value.trim().toLowerCase();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const sponsorCodeInput = document.getElementById('sponsorCodeInput').value.trim();
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyC6CD-KssIaBO0lGZbf5ymrH03uVfbNP-k",
-      authDomain: "parminanetwork.firebaseapp.com",
-      projectId: "parminanetwork",
-      storageBucket: "parminanetwork.firebasestorage.app",
-      messagingSenderId: "736943184054",
-      appId: "1:736943184054:web:31fed7a4d10442870e2e17"
-    };
+    errorMsg.textContent = "";
+    successMsg.textContent = "";
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const ref = urlParams.get('ref');
-      if (ref) {
-        document.getElementById('sponsorCodeInput').value = ref;
-      }
-      document.getElementById('name').focus();
-    });
-
-    async function findAutoParent(sponsorID) {
-      const queue = [sponsorID];
-      while (queue.length > 0) {
-        const currentID = queue.shift();
-        const doc = await db.collection("users").doc(currentID).get();
-        const data = doc.data();
-        if (!data || !data.downlines) continue;
-        if (data.downlines.length < 3) {
-          return currentID;
-        } else {
-          queue.push(...data.downlines);
-        }
-      }
-      return sponsorID;
+    if (!name || !username || !email || !password || !sponsorCodeInput) {
+      errorMsg.textContent = "Isi semua kolom dengan lengkap!";
+      return;
     }
 
-    async function register() {
-      const name = document.getElementById('name').value.trim();
-      const username = document.getElementById('username').value.trim().toLowerCase();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const sponsorCodeInput = document.getElementById('sponsorCodeInput').value.trim();
-      const errorMsg = document.getElementById('errorMsg');
-      const successMsg = document.getElementById('successMsg');
-      const registerButton = document.getElementById('registerButton');
+    const usernameCheck = await db.collection("users").doc(username).get();
+    if (usernameCheck.exists && usernameCheck.data().email) {
+      errorMsg.textContent = "Username sudah dipakai. Silakan pilih yang lain.";
+      return;
+    }
 
-      errorMsg.textContent = "";
-      successMsg.textContent = "";
+    const sponsorSnapshot = await db.collection("users").where("username", "==", sponsorCodeInput).limit(1).get();
+    if (sponsorSnapshot.empty) {
+      errorMsg.textContent = "Kode Sponsor tidak valid! Tanyakan pada pengundang Anda.";
+      return;
+    }
 
-      if (!name || !username || !email || !password || !confirmPassword || !sponsorCodeInput) {
-        errorMsg.textContent = "Isi semua kolom dengan lengkap!";
-        return;
-      }
+    const sponsorDoc = sponsorSnapshot.docs[0];
+    const sponsorID = sponsorDoc.id;
 
-      if (!/^[a-zA-Z\s]+$/.test(name)) {
-        errorMsg.textContent = "Nama lengkap hanya boleh berisi huruf dan spasi!";
-        return;
-      }
+    // 🔄 Auto Placement (cari parent ID)
+    async function findAvailableParent(startID, maxDepth = 10) {
+      const queue = [{ id: startID, level: 1 }];
+      while (queue.length > 0) {
+        const current = queue.shift();
+        if (current.level > maxDepth) break;
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        errorMsg.textContent = "Format email tidak valid! Contoh: Harus contoh@email.com (gmail, hotmail, yahoo dll.)";
-        return;
-      }
+        const snapshot = await db.collection("users").doc(current.id).get();
+        const data = snapshot.data();
+        const downlines = data.downlines || [];
 
-      if (password.length < 6) {
-        errorMsg.textContent = "Password minimal 6 karakter!";
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        errorMsg.textContent = "Password tidak cocok!";
-        return;
-      }
-
-      const blockedUsernames = ["admin", "support", "parmina", "root", "system"];
-      if (blockedUsernames.includes(username)) {
-        errorMsg.textContent = "Username tidak diperbolehkan. Silakan pilih yang lain.";
-        return;
-      }
-
-      try {
-        registerButton.disabled = true;
-        registerButton.textContent = "Mendaftarkan...";
-
-        const sponsorSnap = await db.collection("users")
-          .where("sponsorCode", "==", sponsorCodeInput)
-          .limit(1).get();
-
-        if (sponsorSnap.empty) {
-          errorMsg.textContent = "Kode Sponsor tidak valid! Tanyakan pada pengundang Anda!";
-          registerButton.disabled = false;
-          registerButton.textContent = "Daftar";
-          return;
+        if (downlines.length < 3) {
+          return current.id;
         }
 
-        const sponsorDoc = sponsorSnap.docs[0];
-        const sponsorID = sponsorDoc.id;
-
-        const codeCheck = await db.collection("users")
-          .where("username", "==", sponsorCodeInput)
-          .limit(1)
-          .get();
-
-        if (!codeCheck.empty) {
-          errorMsg.textContent = "Username sudah dipakai, silakan pilih yang lain!";
-          registerButton.disabled = false;
-          registerButton.textContent = "Daftar";
-          return;
-        }
-
-        const parentID = await findAutoParent(sponsorID);
-        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-        const uid = userCredential.user.uid;
-
-        const user = firebase.auth().currentUser;
-        await user.sendEmailVerification();
-        window.location.href = "verifikasi.html";
-
-        await db.collection("users").doc(username).set({
-          name,
-          username,
-          email,
-          sponsorCode: sponsorCodeInput,
-          sponsorID,
-          parentID,
-          joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          downlines: [],
-          pembelianPribadi: 0,
-          omzetJaringan: 0,
-          komisiSponsor: 0,
-          komisiMatrix: 0,
-          totalKomisi: 0,
-          bonusReward: 0,
-          levelReward: "Bronze", // bisa kamu ubah logikanya nanti berdasarkan omzet/jaringan
-          transactions: [],
-          statusAktif: false,
-          isAdmin: false
+        downlines.forEach(id => {
+          queue.push({ id, level: current.level + 1 });
         });
+      }
+      return startID; // fallback
+    }
 
+    const parentID = await findAvailableParent(sponsorID);
+
+    try {
+      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      const uid = userCredential.user.uid;
+
+      await db.collection("users").doc(username).set({
+        name,
+        username,
+        email,
+        sponsorID,
+        sponsorCode: sponsorCodeInput,
+        parentID,
+        joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        downlines: [],
+        totalSales: 0,
+        pembelianPribadi: 0,
+        omzetJaringan: 0,
+        komisiSponsor: 0,
+        komisiMatrix: 0,
+        totalKomisi: 0,
+        bonusReward: 0,
+        levelReward: "",
+        statusAktif: false,
+        isAdmin: false,
+        transactions: []
+      });
+
+      // Tambahkan ke downlines sponsor
+      await db.collection("users").doc(sponsorID).update({
+        downlines: firebase.firestore.FieldValue.arrayUnion(username)
+      });
+
+      // Tambahkan juga ke downlines parent
+      if (parentID !== sponsorID) {
         await db.collection("users").doc(parentID).update({
           downlines: firebase.firestore.FieldValue.arrayUnion(username)
         });
-
-        successMsg.textContent = "Pendaftaran berhasil! Mengarahkan ke halaman login...";
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 3000);
-      } catch (error) {
-        if (error.code === "auth/email-already-in-use") {
-          errorMsg.textContent = "Email sudah terdaftar. Silakan gunakan email lain atau login.";
-        } else {
-          errorMsg.textContent = "Pendaftaran gagal: " + error.message;
-        }
-      } finally {
-        registerButton.disabled = false;
-        registerButton.textContent = "Daftar";
       }
+
+      await userCredential.user.sendEmailVerification();
+      successMsg.textContent = "Pendaftaran berhasil! Silakan verifikasi email Anda sebelum login.";
+
+    } catch (error) {
+      console.error("Pendaftaran gagal:", error);
+      errorMsg.textContent = "Pendaftaran gagal: " + error.message;
     }
-  </script>
-</body>
-</html>
+  }
+</script>
