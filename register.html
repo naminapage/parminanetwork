@@ -1,104 +1,160 @@
-<script>
-  async function register() {
-    const name = document.getElementById('name').value.trim();
-    const username = document.getElementById('username').value.trim().toLowerCase();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const sponsorCodeInput = document.getElementById('sponsorCodeInput').value.trim();
-    const errorMsg = document.getElementById('errorMsg');
-    const successMsg = document.getElementById('successMsg');
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daftar - Parmina Network</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-md">
+    <h2 class="text-xl font-bold text-center text-purple-700 mb-4">Daftar Member</h2>
 
-    errorMsg.textContent = "";
-    successMsg.textContent = "";
+    <div id="errorMsg" class="text-red-600 text-sm text-center mb-2"></div>
+    <div id="successMsg" class="text-green-600 text-sm text-center mb-2"></div>
 
-    if (!name || !username || !email || !password || !sponsorCodeInput) {
-      errorMsg.textContent = "Isi semua kolom dengan lengkap!";
-      return;
-    }
+    <div class="mb-4">
+      <label class="block text-gray-700 mb-1">Nama Lengkap</label>
+      <input id="name" type="text" class="w-full border rounded px-3 py-2"/>
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700 mb-1">Username (Kode Sponsor)</label>
+      <input id="username" type="text" class="w-full border rounded px-3 py-2"/>
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700 mb-1">Email</label>
+      <input id="email" type="email" class="w-full border rounded px-3 py-2"/>
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700 mb-1">Password</label>
+      <input id="password" type="password" class="w-full border rounded px-3 py-2"/>
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700 mb-1">Kode Sponsor</label>
+      <input id="sponsorCodeInput" type="text" class="w-full border rounded px-3 py-2"/>
+    </div>
+    <button onclick="register()" id="registerButton" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded">
+      Daftar
+    </button>
+    <p class="mt-4 text-sm text-center">Sudah punya akun? <a href="index.html" class="text-purple-700 font-semibold hover:underline">Login</a></p>
+  </div>
 
-    const usernameCheck = await db.collection("users").doc(username).get();
-    if (usernameCheck.exists && usernameCheck.data().email) {
-      errorMsg.textContent = "Username sudah dipakai. Silakan pilih yang lain.";
-      return;
-    }
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC6CD-KssIaBO0lGZbf5ymrH03uVfbNP-k",
+      authDomain: "parminanetwork.firebaseapp.com",
+      projectId: "parminanetwork",
+      storageBucket: "parminanetwork.appspot.com",
+      messagingSenderId: "736943184054",
+      appId: "1:736943184054:web:31fed7a4d10442870e2e17"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    const sponsorSnapshot = await db.collection("users").where("username", "==", sponsorCodeInput).limit(1).get();
-    if (sponsorSnapshot.empty) {
-      errorMsg.textContent = "Kode Sponsor tidak valid! Tanyakan pada pengundang Anda.";
-      return;
-    }
+    async function register() {
+      const name = document.getElementById('name').value.trim();
+      const username = document.getElementById('username').value.trim().toLowerCase();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const sponsorCodeInput = document.getElementById('sponsorCodeInput').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
 
-    const sponsorDoc = sponsorSnapshot.docs[0];
-    const sponsorID = sponsorDoc.id;
+      errorMsg.textContent = "";
+      successMsg.textContent = "";
 
-    // 🔄 Auto Placement (cari parent ID)
-    async function findAvailableParent(startID, maxDepth = 10) {
-      const queue = [{ id: startID, level: 1 }];
-      while (queue.length > 0) {
-        const current = queue.shift();
-        if (current.level > maxDepth) break;
-
-        const snapshot = await db.collection("users").doc(current.id).get();
-        const data = snapshot.data();
-        const downlines = data.downlines || [];
-
-        if (downlines.length < 3) {
-          return current.id;
-        }
-
-        downlines.forEach(id => {
-          queue.push({ id, level: current.level + 1 });
-        });
+      if (!name || !username || !email || !password || !sponsorCodeInput) {
+        errorMsg.textContent = "Isi semua kolom dengan lengkap!";
+        return;
       }
-      return startID; // fallback
-    }
 
-    const parentID = await findAvailableParent(sponsorID);
+      const usernameCheck = await db.collection("users").doc(username).get();
+      if (usernameCheck.exists && usernameCheck.data().email) {
+        errorMsg.textContent = "Username sudah dipakai. Silakan pilih yang lain.";
+        return;
+      }
 
-    try {
-      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-      const uid = userCredential.user.uid;
+      const sponsorSnapshot = await db.collection("users").where("username", "==", sponsorCodeInput).limit(1).get();
+      if (sponsorSnapshot.empty) {
+        errorMsg.textContent = "Kode Sponsor tidak valid! Tanyakan pada pengundang Anda.";
+        return;
+      }
 
-      await db.collection("users").doc(username).set({
-        name,
-        username,
-        email,
-        sponsorID,
-        sponsorCode: sponsorCodeInput,
-        parentID,
-        joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        downlines: [],
-        totalSales: 0,
-        pembelianPribadi: 0,
-        omzetJaringan: 0,
-        komisiSponsor: 0,
-        komisiMatrix: 0,
-        totalKomisi: 0,
-        bonusReward: 0,
-        levelReward: "",
-        statusAktif: false,
-        isAdmin: false,
-        transactions: []
-      });
+      const sponsorDoc = sponsorSnapshot.docs[0];
+      const sponsorID = sponsorDoc.id;
 
-      // Tambahkan ke downlines sponsor
-      await db.collection("users").doc(sponsorID).update({
-        downlines: firebase.firestore.FieldValue.arrayUnion(username)
-      });
+      // 🔄 Auto Placement (cari parent ID)
+      async function findAvailableParent(startID, maxDepth = 10) {
+        const queue = [{ id: startID, level: 1 }];
+        while (queue.length > 0) {
+          const current = queue.shift();
+          if (current.level > maxDepth) break;
 
-      // Tambahkan juga ke downlines parent
-      if (parentID !== sponsorID) {
-        await db.collection("users").doc(parentID).update({
+          const snapshot = await db.collection("users").doc(current.id).get();
+          const data = snapshot.data();
+          const downlines = data.downlines || [];
+
+          if (downlines.length < 3) {
+            return current.id;
+          }
+
+          downlines.forEach(id => {
+            queue.push({ id, level: current.level + 1 });
+          });
+        }
+        return startID; // fallback
+      }
+
+      const parentID = await findAvailableParent(sponsorID);
+
+      try {
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const uid = userCredential.user.uid;
+
+        await db.collection("users").doc(username).set({
+          name,
+          username,
+          email,
+          sponsorID,
+          sponsorCode: sponsorCodeInput,
+          parentID,
+          joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          downlines: [],
+          totalSales: 0,
+          pembelianPribadi: 0,
+          omzetJaringan: 0,
+          komisiSponsor: 0,
+          komisiMatrix: 0,
+          totalKomisi: 0,
+          bonusReward: 0,
+          levelReward: "",
+          statusAktif: false,
+          isAdmin: false,
+          transactions: []
+        });
+
+        // Tambahkan ke downlines sponsor
+        await db.collection("users").doc(sponsorID).update({
           downlines: firebase.firestore.FieldValue.arrayUnion(username)
         });
+
+        // Tambahkan juga ke downlines parent
+        if (parentID !== sponsorID) {
+          await db.collection("users").doc(parentID).update({
+            downlines: firebase.firestore.FieldValue.arrayUnion(username)
+          });
+        }
+
+        await userCredential.user.sendEmailVerification();
+        successMsg.textContent = "Pendaftaran berhasil! Silakan verifikasi email Anda sebelum login.";
+      } catch (error) {
+        console.error("Pendaftaran gagal:", error);
+        errorMsg.textContent = "Pendaftaran gagal: " + error.message;
       }
-
-      await userCredential.user.sendEmailVerification();
-      successMsg.textContent = "Pendaftaran berhasil! Silakan verifikasi email Anda sebelum login.";
-
-    } catch (error) {
-      console.error("Pendaftaran gagal:", error);
-      errorMsg.textContent = "Pendaftaran gagal: " + error.message;
     }
-  }
-</script>
+  </script>
+</body>
+</html>
