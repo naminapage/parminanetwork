@@ -161,9 +161,8 @@
           isTopLevel: false
         });
 
-
         await db.collection("users").doc(parentID).update({
-          downlines: firebase.firestore.FieldValue.arrayUnion(uid)
+          downlines: firebase.firestore.FieldValue.arrayUnion(username)
         });
 
         successMsg.textContent = "Pendaftaran berhasil! Mengarahkan ke halaman login...";
