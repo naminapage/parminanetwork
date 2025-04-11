@@ -127,8 +127,9 @@
         const sponsorID = sponsorDoc.id;
 
         const codeCheck = await db.collection("users")
-          .where("sponsorCode", "==", username)
-          .limit(1).get();
+          .where("username", "==", sponsorCodeInput)
+          .limit(1)
+          .get();
 
         if (!codeCheck.empty) {
           errorMsg.textContent = "Username sudah dipakai, silakan pilih yang lain!";
