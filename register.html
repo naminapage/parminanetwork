@@ -149,16 +149,21 @@
           name,
           username,
           email,
+          sponsorCode: sponsorCodeInput,
           sponsorID,
-          sponsorCode: username,
           parentID,
           joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
           downlines: [],
-          totalSales: 0,
           pembelianPribadi: 0,
           omzetJaringan: 0,
-          statusAktif: true,
-          isTopLevel: false
+          komisiSponsor: 0,
+          komisiMatrix: 0,
+          totalKomisi: 0,
+          bonusReward: 0,
+          levelReward: "Bronze", // bisa kamu ubah logikanya nanti berdasarkan omzet/jaringan
+          transactions: [],
+          statusAktif: false,
+          isAdmin: false
         });
 
         await db.collection("users").doc(parentID).update({
