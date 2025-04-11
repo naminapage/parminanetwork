@@ -109,7 +109,7 @@
           return;
         }
 
-        const sponsorSnap = await db.collection("users").where("username", "==", sponsorCodeInput).limit(1).get();
+        const sponsorSnap = await db.collection("users").where("username", "==", sponsorCodeInput).get();
         if (sponsorSnap.empty) {
           errorMsg.textContent = "Kode sponsor tidak valid!";
           return;
@@ -118,6 +118,11 @@
         const sponsorDoc = sponsorSnap.docs[0];
         const sponsorID = sponsorDoc.id;
         const parentID = await findAutoParent(sponsorID);
+
+        if (!username || !parentID) {
+          errorMsg.textContent = "Terjadi kesalahan teknis saat mencari struktur jaringan.";
+          return;
+        }
 
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
