@@ -81,7 +81,12 @@
           email: user.email,
           username: data.username,
           name: data.name
+          isAdmin: data.isAdmin === true
         };
+      
+      if (window.currentUser.isAdmin) {
+        document.getElementById("adminMenuButton").classList.remove("hidden");
+      }
 
         const nameEl = document.querySelector('#userName');
         if (nameEl) nameEl.textContent = data.name || 'User';
