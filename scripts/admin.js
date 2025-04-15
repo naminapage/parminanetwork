@@ -40,13 +40,11 @@ async function adminSaveUser() {
 
   const username = userInfo.dataset.username;
   const aktif = document.getElementById("adminUserAktif").checked;
-  const isAdmin = document.getElementById("adminUserAdmin").checked;
   const belanja = parseInt(document.getElementById("adminUserBelanja").value);
 
   try {
     await window.db.collection("users").doc(username).update({
       statusAktif: aktif,
-      isAdmin: isAdmin,
       pembelianPribadi: belanja
     });
 
