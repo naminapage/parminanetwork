@@ -20,6 +20,14 @@
         loadKomisi(window.db, window.currentUser);
       }
       //<!-- Tambah lagi script lainnya nanti -->
+      if (menu === 'admin') {
+        if (window.currentUser?.isAdmin) {
+          loadAdminPanel();
+        } else {
+          alert("Akses ditolak!");
+          return;
+        }
+      }
       if (window.innerWidth < 768) {
         const sidebar = document.getElementById('sidebar');
         const menuPath = document.getElementById('menuPath');
@@ -157,6 +165,7 @@
 <script src="scripts/network.js"></script>
 <script src="scripts/komisi.js"></script>
 <!-- Tambah lagi script lainnya nanti -->
+<script src="scripts/admin.js"></script>
 </head>
 
 <body class="bg-gray-100 font-sans">
@@ -186,6 +195,7 @@
         <button onclick="navigateMenu('galeri')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🖼️ Galeri</button>
         <button onclick="navigateMenu('profil')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">👤 Profil & Akun</button>
         <button onclick="logoutUser()" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-red-100 text-red-600 font-semibold">🚪 Logout</button>
+        <button id="adminMenuButton" onclick="navigateMenu('admin')" class="hidden block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🛠️ Panel Admin</button>
       </nav>
     </aside>
 
@@ -356,6 +366,28 @@
         <button class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg transition w-full sm:w-auto">🔑 Ganti Password</button>
       </div>
     </div>
+  </div>
+</section>
+<!-- Section Admin -->
+<section id="adminSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🛠️ Panel Admin</h2>
+  <div class="bg-white p-6 rounded-2xl shadow-lg space-y-4 max-w-xl">
+    <input id="adminSearchInput" type="text" placeholder="Masukkan username" class="border p-2 w-full rounded" />
+    <button onclick="adminSearchUser()" class="bg-purple-600 text-white px-4 py-2 rounded">🔍 Cari User</button>
+
+    <div id="adminUserInfo" class="hidden space-y-2">
+      <p><strong>Nama:</strong> <span id="adminUserName"></span></p>
+      <p><strong>Email:</strong> <span id="adminUserEmail"></span></p>
+
+      <label><input type="checkbox" id="adminUserAktif"> Aktif Bulan Ini</label><br>
+      <label><input type="checkbox" id="adminUserAdmin"> Akses Admin</label><br>
+      <label>
+        Pembelian Pribadi (Rp): <input type="number" id="adminUserBelanja" class="border p-1 rounded w-32 ml-2">
+      </label><br>
+
+      <button onclick="adminSaveUser()" class="bg-green-600 text-white px-4 py-2 rounded">💾 Simpan Perubahan</button>
+    </div>
+    <p id="adminStatus" class="text-sm text-blue-600"></p>
   </div>
 </section>
     </main>
