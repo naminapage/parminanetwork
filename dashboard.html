@@ -63,6 +63,14 @@
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data();
 
+        // Simpan global untuk digunakan di menu
+        window.db = db;
+        window.currentUser = {
+          email: user.email,
+          username: data.username,
+          name: data.name
+        };
+
         const nameEl = document.querySelector('#userName');
         if (nameEl) nameEl.textContent = data.name || 'User';
 
