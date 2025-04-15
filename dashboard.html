@@ -19,7 +19,6 @@
       if (menu === 'komisi') {
         loadKomisi(window.db, window.currentUser);
       }
-      //<!-- Tambah lagi script lainnya nanti -->
       if (menu === 'admin') {
         if (window.currentUser?.isAdmin) {
           loadAdminPanel();
@@ -164,7 +163,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 <script src="scripts/network.js"></script>
 <script src="scripts/komisi.js"></script>
-<!-- Tambah lagi script lainnya nanti -->
 <script src="scripts/admin.js"></script>
 </head>
 
@@ -368,6 +366,7 @@
     </div>
   </div>
 </section>
+      
 <!-- Section Admin -->
 <section id="adminSection" class="hidden">
   <h2 class="text-3xl font-bold text-gray-800 mb-6">🛠️ Panel Admin</h2>
