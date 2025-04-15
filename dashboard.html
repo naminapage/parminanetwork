@@ -46,15 +46,15 @@
     }
 
     function logoutUser() {
-  firebase.auth().signOut().then(() => {
-    window.location.href = 'index.html';
-  }).catch((error) => {
-    console.error('Gagal logout:', error);
-  });
-}
+      firebase.auth().signOut().then(() => {
+      window.location.href = 'index.html';
+      }).catch((error) => {
+      console.error('Gagal logout:', error);
+      });
+    }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-  navigateMenu('home');
+      document.addEventListener('DOMContentLoaded', async () => {
+        navigateMenu('home');
 
   const firebaseConfig = {
     apiKey: "AIzaSyC6CD-KssIaBO0lGZbf5ymrH03uVfbNP-k",
