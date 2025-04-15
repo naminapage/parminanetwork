@@ -23,7 +23,6 @@ async function adminSearchUser() {
     document.getElementById("adminUserName").textContent = data.name;
     document.getElementById("adminUserEmail").textContent = data.email;
     document.getElementById("adminUserAktif").checked = !!data.statusAktif;
-    document.getElementById("adminUserAdmin").checked = !!data.isAdmin;
     document.getElementById("adminUserBelanja").value = data.pembelianPribadi || 0;
 
     userInfo.dataset.username = username;
