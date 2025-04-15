@@ -117,13 +117,15 @@
 
         const sponsorDoc = sponsorSnap.docs[0];
         const sponsorID = sponsorDoc.id;
-        const parentID = await findAutoParent(sponsorID);
 
+        let parentID = await findAutoParent(sponsorID);
         if (!parentID || typeof parentID !== "string" || parentID.trim() === "") {
-          errorMsg.textContent = "Gagal menentukan posisi dalam struktur jaringan. Coba lagi nanti.";
+          errorMsg.textContent = "Gagal menentukan posisi dalam struktur jaringan. Silakan coba lagi.";
+          registerButton.disabled = false;
+          registerButton.textContent = "Daftar";
           return;
         }
-        
+
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
