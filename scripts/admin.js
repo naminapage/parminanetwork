@@ -62,4 +62,5 @@ function loadAdminPanel() {
   document.getElementById("adminSearchInput").value = "";
   document.getElementById("adminUserInfo").classList.add("hidden");
   document.getElementById("adminStatus").textContent = "";
+  document.getElementById("adminSection").classList.remove("hidden");
 }
