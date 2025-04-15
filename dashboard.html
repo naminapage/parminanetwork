@@ -12,6 +12,10 @@
       sections.forEach(sec => sec.classList.add('hidden'));
       const target = document.getElementById(menu + 'Section');
       if (target) target.classList.remove('hidden');
+      // Load script per menu
+      if (menu === 'network') {
+        loadNetwork(window.db, window.currentUser);
+      }
       if (window.innerWidth < 768) {
         const sidebar = document.getElementById('sidebar');
         const menuPath = document.getElementById('menuPath');
