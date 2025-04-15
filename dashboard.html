@@ -20,6 +20,7 @@
         loadKomisi(window.db, window.currentUser);
       }
       if (menu === 'admin') {
+        console.log("Cek currentUser:", window.currentUser);
         if (window.currentUser?.isAdmin) {
           loadAdminPanel();
         } else {
