@@ -18,7 +18,7 @@ async function catatPembelian(nominal) {
 
     // 2. Update status aktif & pembelian pribadi
     await db.collection("users").doc(user.username).update({
-      pembelianPribadi: nominal,
+      pembelianPribadi: firebase.firestore.FieldValue.increment(nominal),
       statusAktif: true
     });
 
