@@ -9,11 +9,19 @@ async function catatPembelian(nominal) {
 
   try {
     // 1. Simpan transaksi
-    const transaksiRef = await db.collection("transaksi").add({
-      userID: user.username,
-      email: user.email,
-      nominal: nominal,
-      tanggal: now
+  const now = new Date();
+  const tahun = now.getFullYear();
+  const bulan = now.getMonth();
+  const awalCutOff = new Date(bulan === 0 ? tahun - 1 : tahun, bulan - 1, 26);
+  const akhirCutOff = new Date(tahun, bulan, 25);
+
+  const transaksiSnapshot = await db.collection("transaksi")
+    .where("userID", "==", userID)
+    .where("tanggal", ">=", awalCutOff)
+    .where("tanggal", "<=", akhirCutOff)
+    .get();
+
+  const isPembelianPertama = transaksiSnapshot.empty;
     });
 
     // 2. Update status aktif & pembelian pribadi
