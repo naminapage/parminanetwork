@@ -67,6 +67,9 @@
     messagingSenderId: "736943184054",
     appId: "1:736943184054:web:31fed7a4d10442870e2e17"
   };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
   firebase.auth().onAuthStateChanged(async (user) => {
   if (user) {
     try {
@@ -74,27 +77,7 @@
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data();
 
-        // Hitung status aktif berdasarkan cutoff: 26 bulan lalu - 25 bulan ini
-        const now = new Date();
-        const awal = new Date(now.getFullYear(), now.getMonth() - 1, 26);
-        const akhir = new Date(now.getFullYear(), now.getMonth(), 25);
-        let aktif = false;
-
-        const transaksiSnapshot = await db.collection("transaksi")
-          .where("userID", "==", data.username)
-          .get();
-
-        transaksiSnapshot.forEach(doc => {
-          const tgl = doc.data().tanggal.toDate();
-          if (tgl >= awal && tgl <= akhir) aktif = true;
-        });
-
-        // Update statusAktif di Firestore
-        await db.collection("users").doc(data.username).update({
-          statusAktif: aktif
-        });
-
-        // Simpan global user
+        // Simpan global untuk digunakan di menu
         window.db = db;
         window.currentUser = {
           email: user.email,
@@ -102,13 +85,11 @@
           name: data.name,
           isAdmin: data.isAdmin === true
         };
+      
+      if (window.currentUser.isAdmin) {
+        document.getElementById("adminMenuButton").classList.remove("hidden");
+      }
 
-        // Tampilkan menu admin kalau dia admin
-        if (window.currentUser.isAdmin) {
-          document.getElementById("adminMenuButton").classList.remove("hidden");
-        }
-
-        // Update tampilan dashboard
         const nameEl = document.querySelector('#userName');
         if (nameEl) nameEl.textContent = data.name || 'User';
 
@@ -119,30 +100,45 @@
         if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
         const statusEl = document.querySelector('#userStatus');
+        let aktif = false;
+        try {
+          const now = new Date();
+          const awal = new Date(now.getFullYear(), now.getMonth(), 1);
+          const akhir = new Date(now.getFullYear(), now.getMonth(), 25); // tutup buku tiap tgl 25
+
+          const transaksiSnapshot = await db.collection("transaksi")
+            .where("userID", "==", data.username)
+            .get();
+
+          transaksiSnapshot.forEach(doc => {
+            const tgl = doc.data().tanggal.toDate();
+            if (tgl >= awal && tgl <= akhir) aktif = true;
+          });
+        } catch (err) {
+          console.error("Gagal cek transaksi:", err);
+        }
         if (statusEl) {
           statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
           statusEl.classList.remove('text-green-600', 'text-red-600');
           statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
         }
 
-        // Tampilkan sponsor
+        // Sponsor
         const sponsorEl = document.querySelector('#userSponsor');
         if (data.sponsorID && data.sponsorID !== 'root') {
           const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
           const sponsor = sponsorDoc.data();
-          if (sponsor && sponsorEl)
-            sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
+          if (sponsor && sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
         } else if (sponsorEl) {
           sponsorEl.textContent = 'Top Leader (admin)';
         }
 
-        // Tampilkan parent
+        // Parent
         const parentEl = document.querySelector('#userParent');
         if (data.parentID && data.parentID !== 'root') {
           const parentDoc = await db.collection('users').doc(data.parentID).get();
           const parent = parentDoc.data();
-          if (parent && parentEl)
-            parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
+          if (parent && parentEl) parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
         } else if (parentEl) {
           parentEl.textContent = 'Top Leader (admin)';
         }
