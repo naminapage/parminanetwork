@@ -1,64 +1,84 @@
-async function prosesPembelian(username, nominal) {
-  try {
-    const now = new Date();
+// Fungsi utama untuk mencatat pembelian user dan proses efeknya
+async function catatPembelian(nominal) {
+  const user = window.currentUser;
+  if (!user || !user.username) {
+    alert("User tidak valid.");
+    return;
+  }
 
-    // 1. Simpan transaksi pribadi
-    await db.collection("transaksi").add({
-      userID: username,
+  const now = new Date();
+
+  try {
+    // 1. Simpan transaksi
+    const transaksiRef = await db.collection("transaksi").add({
+      userID: user.username,
+      email: user.email,
       nominal: nominal,
       tanggal: now
     });
 
-    // 2. Tandai user sebagai aktif
-    await db.collection("users").doc(username).update({
-      statusAktif: true,
-      pembelianPribadi: nominal
+    // 2. Update status aktif & pembelian pribadi
+    await db.collection("users").doc(user.username).update({
+      pembelianPribadi: nominal,
+      statusAktif: true
     });
 
-    // 3. Jalankan distribusi komisi & omzet jaringan
-    await hitungKomisi(username, nominal);
+    // 3. Proses komisi sponsor
+    const userDoc = await db.collection("users").doc(user.username).get();
+    const dataUser = userDoc.data();
 
-    console.log("✅ Transaksi berhasil diproses");
-  } catch (err) {
-    console.error("❌ Gagal proses pembelian:", err);
-  }
-}
+    if (dataUser.sponsorID && dataUser.sponsorID !== 'root') {
+      const sponsorRef = db.collection("users").doc(dataUser.sponsorID);
 
-async function hitungKomisi(username, jumlah) {
-  try {
-    let currentID = username;
+      // Tambahkan komisi sponsor ke koleksi komisi
+      await db.collection("komisi").add({
+        userID: dataUser.sponsorID,
+        sumber: user.username,
+        jenis: "Sponsor",
+        nominal: 20000,
+        tanggal: now
+      });
 
-    for (let level = 1; level <= 10; level++) {
-      const userDoc = await db.collection("users").doc(currentID).get();
-      if (!userDoc.exists) break;
-
-      const userData = userDoc.data();
-      const uplineID = userData.parentID;
-      if (!uplineID || uplineID === "root") break;
-
-      const uplineRef = db.collection("users").doc(uplineID);
-      const uplineDoc = await uplineRef.get();
-      const uplineData = uplineDoc.data();
-
-      // ⬆️ Tambah omzet jaringan
-      const omzetBaru = (uplineData.omzetJaringan || 0) + jumlah;
-      await uplineRef.update({ omzetJaringan: omzetBaru });
-
-      // 💰 Tambah komisi kalau upline aktif
-      if (uplineData.statusAktif) {
-        const komisi = Math.floor(jumlah * 0.1); // 10% per level
-        await db.collection("komisi").add({
-          userID: uplineID,
-          dariUser: username,
-          jumlah: komisi,
-          level: level,
-          tanggal: new Date()
-        });
-      }
-
-      currentID = uplineID;
+      // Update total omzet sponsor
+      await sponsorRef.update({
+        omzetJaringan: firebase.firestore.FieldValue.increment(nominal)
+      });
     }
+
+    // 4. Proses komisi matrix (hingga 10 level)
+    let currentID = dataUser.parentID;
+    for (let level = 1; level <= 10 && currentID && currentID !== 'root'; level++) {
+      const uplineRef = db.collection("users").doc(currentID);
+      const uplineDoc = await uplineRef.get();
+
+      if (uplineDoc.exists) {
+        const dataUpline = uplineDoc.data();
+
+        // Tambahkan komisi matrix hanya jika status aktif
+        if (dataUpline.statusAktif) {
+          await db.collection("komisi").add({
+            userID: currentID,
+            sumber: user.username,
+            jenis: `Matrix Lv${level}`,
+            nominal: 10000,
+            tanggal: now
+          });
+        }
+
+        // Tambah omzet jaringan upline (tetap ditambahkan meskipun tidak aktif)
+        await uplineRef.update({
+          omzetJaringan: firebase.firestore.FieldValue.increment(nominal)
+        });
+
+        currentID = dataUpline.parentID;
+      } else {
+        break;
+      }
+    }
+
+    alert("Transaksi berhasil dicatat!");
   } catch (err) {
-    console.error("❌ Gagal hitung komisi:", err);
+    console.error("Gagal catat pembelian:", err);
+    alert("Gagal mencatat pembelian.");
   }
 }
