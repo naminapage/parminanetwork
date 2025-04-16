@@ -67,25 +67,14 @@
     messagingSenderId: "736943184054",
     appId: "1:736943184054:web:31fed7a4d10442870e2e17"
   };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
   firebase.auth().onAuthStateChanged(async (user) => {
   if (user) {
     try {
       const snapshot = await db.collection('users').where('email', '==', user.email).get();
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data();
-    let aktif = false;
-    transaksiSnapshot.forEach(doc => {
-      const tgl = doc.data().tanggal.toDate();
-      if (tgl >= awal && tgl <= akhir) aktif = true;
-    });
-    await db.collection("users").doc(data.username).update({
-      statusAktif: aktif
-    });
 
-        // Simpan global untuk digunakan di menu
+        // Simpan global
         window.db = db;
         window.currentUser = {
           email: user.email,
@@ -93,11 +82,35 @@
           name: data.name,
           isAdmin: data.isAdmin === true
         };
-      
-      if (window.currentUser.isAdmin) {
-        document.getElementById("adminMenuButton").classList.remove("hidden");
-      }
 
+        if (window.currentUser.isAdmin) {
+          document.getElementById("adminMenuButton").classList.remove("hidden");
+        }
+
+        // Cek status aktif berdasarkan transaksi 26 bulan lalu s/d 25 bulan ini
+        const now = new Date();
+        const awal = new Date(now.getFullYear(), now.getMonth() - 1, 26); // 26 bulan lalu
+        const akhir = new Date(now.getFullYear(), now.getMonth(), 25);    // 25 bulan ini
+
+        let aktif = false;
+        const transaksiSnapshot = await db.collection("transaksi")
+          .where("userID", "==", data.username)
+          .get();
+
+        transaksiSnapshot.forEach(doc => {
+          const tgl = doc.data().tanggal.toDate();
+          if (tgl >= awal && tgl <= akhir) aktif = true;
+        });
+
+        // Update status aktif ke Firestore
+        await db.collection("users").doc(data.username).update({
+          statusAktif: aktif
+        });
+
+        // Simpan statusAktif ke window
+        window.currentUser.statusAktif = aktif;
+
+        // Tampilkan di dashboard
         const nameEl = document.querySelector('#userName');
         if (nameEl) nameEl.textContent = data.name || 'User';
 
@@ -108,30 +121,13 @@
         if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
         const statusEl = document.querySelector('#userStatus');
-        let aktif = false;
-        try {
-          const now = new Date();
-          const awal = new Date(now.getFullYear(), now.getMonth(), 1);
-          const akhir = new Date(now.getFullYear(), now.getMonth(), 25); // tutup buku tiap tgl 25
-
-          const transaksiSnapshot = await db.collection("transaksi")
-            .where("userID", "==", data.username)
-            .get();
-
-          transaksiSnapshot.forEach(doc => {
-            const tgl = doc.data().tanggal.toDate();
-            if (tgl >= awal && tgl <= akhir) aktif = true;
-          });
-        } catch (err) {
-          console.error("Gagal cek transaksi:", err);
-        }
         if (statusEl) {
           statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
           statusEl.classList.remove('text-green-600', 'text-red-600');
           statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
         }
 
-        // Sponsor
+        // Tampilkan Sponsor
         const sponsorEl = document.querySelector('#userSponsor');
         if (data.sponsorID && data.sponsorID !== 'root') {
           const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
@@ -141,7 +137,7 @@
           sponsorEl.textContent = 'Top Leader (admin)';
         }
 
-        // Parent
+        // Tampilkan Parent
         const parentEl = document.querySelector('#userParent');
         if (data.parentID && data.parentID !== 'root') {
           const parentDoc = await db.collection('users').doc(data.parentID).get();
@@ -150,6 +146,9 @@
         } else if (parentEl) {
           parentEl.textContent = 'Top Leader (admin)';
         }
+
+        // Load konten awal
+        navigateMenu('home');
       }
     } catch (e) {
       console.error('Gagal ambil data user:', e);
