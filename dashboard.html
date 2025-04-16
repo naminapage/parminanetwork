@@ -105,7 +105,7 @@
           const now = new Date();
           const tahun = now.getFullYear();
           const bulan = now.getMonth();
-          const awalCutOff = new Date(bulan === 0 ? tahun - 1 : tahun, bulan - 1, 26);
+          const awalCutOff = new Date(bulan === 0 ? tahun - 1 : tahun, bulan === 0 ? 11 : bulan - 1, 26);
           const akhirCutOff = new Date(tahun, bulan, 25);
 
           const transaksiSnapshot = await db.collection("transaksi")
