@@ -1,26 +1,56 @@
-// scripts/komisi.js
+async function loadKomisiUser() {
+  const user = window.currentUser;
+  if (!user || !user.username) {
+    console.error("User belum login.");
+    return;
+  }
 
-async function loadKomisi(db, currentUser) {
+  const komisiEl = document.getElementById("komisiList");
+  const totalEl = document.getElementById("totalKomisi");
+  if (!komisiEl || !totalEl) return;
+
+  komisiEl.innerHTML = "";
+  let total = 0;
+
   try {
-    const userDoc = await db.collection("users").doc(currentUser.username).get();
-    const data = userDoc.data();
+    const snapshot = await db.collection("komisi")
+      .where("userID", "==", user.username)
+      .orderBy("tanggal", "desc")
+      .limit(50)
+      .get();
 
-    if (!data) return;
+    if (snapshot.empty) {
+      komisiEl.innerHTML = "<p class='text-gray-500'>Belum ada komisi.</p>";
+      totalEl.textContent = "Rp 0";
+      return;
+    }
 
-    // Masukin data komisi ke DOM
-    const komisiSponsor = document.querySelector('#komisiSection .komisi-sponsor');
-    const komisiMatrix = document.querySelector('#komisiSection .komisi-matrix');
-    const totalKomisi = document.querySelector('#komisiSection .total-komisi');
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const nominal = data.nominal || 0;
+      total += nominal;
 
-    if (komisiSponsor) komisiSponsor.textContent = `Rp${formatRupiah(data.komisiSponsor || 0)}`;
-    if (komisiMatrix) komisiMatrix.textContent = `Rp${formatRupiah(data.komisiMatrix || 0)}`;
-    if (totalKomisi) totalKomisi.textContent = `Rp${formatRupiah(data.totalKomisi || 0)}`;
+      const item = document.createElement("div");
+      item.className = "border-b py-2";
+      item.innerHTML = `
+        <div class="font-semibold">${data.jenis || 'Komisi'}</div>
+        <div class="text-sm text-gray-600">Dari: ${data.sumber || '–'}</div>
+        <div class="text-sm text-gray-500">${formatTanggal(data.tanggal?.toDate())}</div>
+        <div class="text-green-600 font-bold">Rp ${nominal.toLocaleString()}</div>
+      `;
+      komisiEl.appendChild(item);
+    });
+
+    totalEl.textContent = `Rp ${total.toLocaleString()}`;
   } catch (err) {
-    console.error("Gagal load komisi:", err);
+    console.error("Gagal mengambil data komisi:", err);
+    komisiEl.innerHTML = "<p class='text-red-500'>Gagal memuat data komisi.</p>";
+    totalEl.textContent = "Rp 0";
   }
 }
 
-// Fungsi bantu rupiah
-function formatRupiah(value) {
-  return Number(value).toLocaleString("id-ID");
+function formatTanggal(tgl) {
+  if (!(tgl instanceof Date)) return "";
+  const opsi = { day: 'numeric', month: 'short', year: 'numeric' };
+  return tgl.toLocaleDateString('id-ID', opsi);
 }
