@@ -76,6 +76,14 @@
       const snapshot = await db.collection('users').where('email', '==', user.email).get();
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data();
+    let aktif = false;
+    transaksiSnapshot.forEach(doc => {
+      const tgl = doc.data().tanggal.toDate();
+      if (tgl >= awal && tgl <= akhir) aktif = true;
+    });
+    await db.collection("users").doc(data.username).update({
+      statusAktif: aktif
+    });
 
         // Simpan global untuk digunakan di menu
         window.db = db;
