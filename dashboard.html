@@ -230,7 +230,15 @@
           </div>
         </div>
       </section>
-      <!-- Section Jaringan -->
+
+<!-- Section Pembelian -->
+<section class="my-6">
+  <h3 class="text-xl font-bold">🛒 Pembelian Pribadi</h3>
+  <input type="number" id="nominalInput" placeholder="Masukkan nominal" class="border p-2 rounded w-48" />
+  <button onclick="catatPembelian(parseInt(document.getElementById('nominalInput').value))" class="bg-blue-600 text-white px-4 py-2 rounded ml-2">💳 Bayar</button>
+</section>
+      
+<!-- Section Jaringan -->
 <section id="networkSection" class="hidden">
   <h2 class="text-3xl font-bold text-gray-800 mb-6">🌿 Jaringan Saya</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
