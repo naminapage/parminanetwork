@@ -1,10 +1,12 @@
-async function catatPembelian(nominal) {
+async function catatPembelian(qty) {
   const user = window.currentUser;
   if (!user || !user.username) {
     alert("User tidak valid.");
     return;
   }
 
+  const hargaProduk = 100000;
+  const nominal = hargaProduk * qty;
   const now = new Date();
 
   try {
@@ -26,6 +28,7 @@ async function catatPembelian(nominal) {
     await db.collection("transaksi").add({
       userID: user.username,
       jumlah: nominal,
+      kuantitas: qty,
       tanggal: now
     });
 
@@ -49,7 +52,7 @@ async function catatPembelian(nominal) {
         userID: dataUser.sponsorID,
         sumber: user.username,
         jenis: "Sponsor",
-        nominal: 20000,
+        nominal: Math.floor(nominal * 0.1), // 10%
         tanggal: now
       });
 
@@ -58,7 +61,7 @@ async function catatPembelian(nominal) {
       });
     }
 
-    // 5. Komisi matrix + omzet jaringan (selalu hitung omzet, komisi hanya kalau pembelian pertama)
+    // 5. Komisi matrix + omzet jaringan
     let currentID = dataUser.parentID;
     for (let level = 1; level <= 10 && currentID && currentID !== 'root'; level++) {
       const uplineRef = db.collection("users").doc(currentID);
@@ -73,7 +76,7 @@ async function catatPembelian(nominal) {
             userID: currentID,
             sumber: user.username,
             jenis: `Matrix Lv${level}`,
-            nominal: 10000,
+            nominal: Math.floor(nominal * 0.05), // 5%
             tanggal: now
           });
         }
@@ -95,12 +98,12 @@ async function catatPembelian(nominal) {
         userID: user.username,
         sumber: user.username,
         jenis: "Loyalty",
-        nominal: 5000, // Misalnya 5% dari nominal, bisa kamu sesuaikan
+        nominal: Math.floor(nominal * 0.05), // 5% loyalty
         tanggal: now
       });
     }
 
-    alert("Transaksi berhasil dicatat!");
+    alert(`Transaksi ${qty} produk berhasil dicatat!`);
   } catch (err) {
     console.error("Gagal catat pembelian:", err);
     alert("Gagal mencatat pembelian.");
