@@ -1,78 +1,88 @@
-// scripts/komisi.js
 async function prosesKomisiTransaksi(transaksiDoc) {
   const data = transaksiDoc.data();
   const usernamePembeli = data.userID;
   const jumlah = data.jumlah;
+  const tanggalTransaksi = data.tanggal.toDate();
 
   const userDoc = await db.collection("users").doc(usernamePembeli).get();
   const userData = userDoc.data();
-
   if (!userData) return;
 
-  const statusAktif = userData.statusAktif === true;
   const sponsorID = userData.sponsorID;
   const parentID = userData.parentID;
 
-  // Komisi Sponsor (langsung)
-  if (statusAktif && sponsorID && sponsorID !== "root") {
-    await db.collection("komisi").add({
-      userID: sponsorID,
-      dariUser: usernamePembeli,
-      jumlah: Math.floor(jumlah * 0.1), // 10%
-      jenis: "Sponsor",
-      tanggal: new Date()
-    });
-  }
+  // Hitung cut-off 26 bulan lalu - 25 bulan ini
+  const tahun = tanggalTransaksi.getFullYear();
+  const bulan = tanggalTransaksi.getMonth();
+  const awalCutOff = new Date(bulan === 0 ? tahun - 1 : tahun, bulan - 1, 26);
+  const akhirCutOff = new Date(tahun, bulan, 25);
+  const cairTanggal = new Date(akhirCutOff.getFullYear(), akhirCutOff.getMonth() + 1, 10);
 
-  // Komisi Matrix (hingga 10 level)
-  let uplineID = parentID;
-  let level = 1;
+  const transaksiSnapshot = await db.collection("transaksi")
+    .where("userID", "==", usernamePembeli)
+    .where("tanggal", ">=", awalCutOff)
+    .where("tanggal", "<=", akhirCutOff)
+    .get();
 
-  while (uplineID && uplineID !== "root" && level <= 10) {
-    const uplineDoc = await db.collection("users").doc(uplineID).get();
-    const uplineData = uplineDoc.data();
+  const isPembelianPertama = transaksiSnapshot.size === 1; // karena transaksi ini sudah masuk
 
-    if (!uplineData) break;
-
-    // Tambahkan omzet jaringan ke upline (selalu masuk, aktif/tidak)
-    const omzetLama = uplineData.omzetJaringan || 0;
-    await db.collection("users").doc(uplineID).update({
-      omzetJaringan: omzetLama + jumlah
-    });
-
-    // Komisi matrix hanya kalau pembeli aktif
-    if (statusAktif) {
+  if (isPembelianPertama) {
+    // === Komisi Sponsor ===
+    if (sponsorID && sponsorID !== "root") {
       await db.collection("komisi").add({
-        userID: uplineID,
+        userID: sponsorID,
         dariUser: usernamePembeli,
-        jumlah: Math.floor(jumlah * 0.05), // 5%
-        jenis: "Matrix Lv" + level,
-        tanggal: new Date()
+        jumlah: Math.floor(jumlah * 0.1),
+        jenis: "Sponsor",
+        tanggal: tanggalTransaksi,
+        cairTanggal,
+        status: "pending"
       });
     }
 
-    uplineID = uplineData.parentID;
-    level++;
+    // === Komisi Matrix ===
+    let uplineID = parentID;
+    let level = 1;
+    while (uplineID && uplineID !== "root" && level <= 10) {
+      const uplineDoc = await db.collection("users").doc(uplineID).get();
+      const uplineData = uplineDoc.data();
+      if (!uplineData) break;
+
+      // Tambah omzet
+      const omzetLama = uplineData.omzetJaringan || 0;
+      await db.collection("users").doc(uplineID).update({
+        omzetJaringan: omzetLama + jumlah
+      });
+
+      await db.collection("komisi").add({
+        userID: uplineID,
+        dariUser: usernamePembeli,
+        jumlah: Math.floor(jumlah * 0.05),
+        jenis: "Matrix Lv" + level,
+        tanggal: tanggalTransaksi,
+        cairTanggal,
+        status: "pending"
+      });
+
+      uplineID = uplineData.parentID;
+      level++;
+    }
+
+    // === Update status aktif user ===
+    await db.collection("users").doc(usernamePembeli).update({
+      statusAktif: true
+    });
+
+  } else {
+    // === Komisi Loyalty ===
+    await db.collection("komisi").add({
+      userID: usernamePembeli,
+      dariUser: usernamePembeli,
+      jumlah: 5000,
+      jenis: "Loyalty",
+      tanggal: tanggalTransaksi,
+      cairTanggal,
+      status: "pending"
+    });
   }
-}
-
-async function loadKomisi() {
-  const komisiSnapshot = await db.collection("komisi")
-    .where("userID", "==", window.currentUser.username)
-    .get();
-
-  let total = 0;
-  let sponsor = 0;
-  let matrix = 0;
-
-  komisiSnapshot.forEach(doc => {
-    const data = doc.data();
-    total += data.jumlah;
-    if (data.jenis === "Sponsor") sponsor += data.jumlah;
-    else matrix += data.jumlah;
-  });
-
-  document.querySelector(".total-komisi").textContent = `Rp${total.toLocaleString()}`;
-  document.querySelector(".komisi-sponsor").textContent = `Rp${sponsor.toLocaleString()}`;
-  document.querySelector(".komisi-matrix").textContent = `Rp${matrix.toLocaleString()}`;
 }
