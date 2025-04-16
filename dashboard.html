@@ -103,17 +103,23 @@
         let aktif = false;
         try {
           const now = new Date();
-          const awal = new Date(now.getFullYear(), now.getMonth(), 1);
-          const akhir = new Date(now.getFullYear(), now.getMonth(), 25); // tutup buku tiap tgl 25
+          const tahun = now.getFullYear();
+          const bulan = now.getMonth();
+          const awalCutOff = new Date(bulan === 0 ? tahun - 1 : tahun, bulan - 1, 26);
+          const akhirCutOff = new Date(tahun, bulan, 25);
 
           const transaksiSnapshot = await db.collection("transaksi")
             .where("userID", "==", data.username)
+            .where("tanggal", ">=", awalCutOff)
+            .where("tanggal", "<=", akhirCutOff)
             .get();
 
-          transaksiSnapshot.forEach(doc => {
-            const tgl = doc.data().tanggal.toDate();
-            if (tgl >= awal && tgl <= akhir) aktif = true;
+          let aktif = !transaksiSnapshot.empty;
+
+          await db.collection("users").doc(data.username).update({
+            statusAktif: aktif
           });
+
         } catch (err) {
           console.error("Gagal cek transaksi:", err);
         }
