@@ -234,26 +234,30 @@
         </div>
       </section>
 
-<!-- Section Beli Produk -->
-<section id="beliProdukSection" class="hidden">
+<!-- Section Produk -->
+<section id="produkSection" class="hidden">
   <h2 class="text-3xl font-bold text-gray-800 mb-6">🛍️ Beli Produk</h2>
-
-  <div class="bg-white p-6 rounded-2xl shadow-md mb-6">
-    <p class="text-gray-700 mb-2">Simulasi pembelian produk untuk keperluan testing sistem komisi dan jaringan.</p>
-    
-    <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-      <input type="number" id="jumlahPembelian" placeholder="Masukkan jumlah pembelian (Rp)" class="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-1/2" />
-      <button onclick="prosesTransaksiDummy()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
-        💸 Simulasi Pembelian
-      </button>
+  <div class="bg-white p-6 rounded-2xl shadow-lg space-y-4 max-w-xl">
+    <div>
+      <label class="block text-gray-700 font-medium mb-1">Nama Produk</label>
+      <input id="produkNama" type="text" value="Alfaz Parfum 100ml" disabled class="border p-2 w-full rounded bg-gray-100" />
     </div>
-    <p id="statusTransaksiDummy" class="mt-4 text-sm text-gray-600"></p>
-  </div>
 
-  <div class="bg-yellow-100 p-4 rounded-lg shadow-inner">
-    <p class="text-yellow-800 text-sm">
-      ⚠️ Ini hanya untuk testing internal. Semua transaksi di sini tidak memengaruhi stok atau proses pengiriman produk.
-    </p>
+    <div>
+      <label class="block text-gray-700 font-medium mb-1">Harga</label>
+      <input id="produkHarga" type="text" value="100000" disabled class="border p-2 w-full rounded bg-gray-100" />
+    </div>
+
+    <div>
+      <label class="block text-gray-700 font-medium mb-1">Jumlah</label>
+      <input id="produkJumlah" type="number" value="1" min="1" class="border p-2 w-full rounded" />
+    </div>
+
+    <button onclick="prosesPembelian()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full">
+      🛒 Beli Sekarang
+    </button>
+
+    <p id="produkStatus" class="text-sm text-blue-600 mt-2"></p>
   </div>
 </section>
       
