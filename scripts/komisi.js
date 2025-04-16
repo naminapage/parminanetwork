@@ -1,56 +1,78 @@
-async function loadKomisiUser() {
-  const user = window.currentUser;
-  if (!user || !user.username) {
-    console.error("User belum login.");
-    return;
+// scripts/komisi.js
+async function prosesKomisiTransaksi(transaksiDoc) {
+  const data = transaksiDoc.data();
+  const usernamePembeli = data.userID;
+  const jumlah = data.jumlah;
+
+  const userDoc = await db.collection("users").doc(usernamePembeli).get();
+  const userData = userDoc.data();
+
+  if (!userData) return;
+
+  const statusAktif = userData.statusAktif === true;
+  const sponsorID = userData.sponsorID;
+  const parentID = userData.parentID;
+
+  // Komisi Sponsor (langsung)
+  if (statusAktif && sponsorID && sponsorID !== "root") {
+    await db.collection("komisi").add({
+      userID: sponsorID,
+      dariUser: usernamePembeli,
+      jumlah: Math.floor(jumlah * 0.1), // 10%
+      jenis: "Sponsor",
+      tanggal: new Date()
+    });
   }
 
-  const komisiEl = document.getElementById("komisiList");
-  const totalEl = document.getElementById("totalKomisi");
-  if (!komisiEl || !totalEl) return;
+  // Komisi Matrix (hingga 10 level)
+  let uplineID = parentID;
+  let level = 1;
 
-  komisiEl.innerHTML = "";
-  let total = 0;
+  while (uplineID && uplineID !== "root" && level <= 10) {
+    const uplineDoc = await db.collection("users").doc(uplineID).get();
+    const uplineData = uplineDoc.data();
 
-  try {
-    const snapshot = await db.collection("komisi")
-      .where("userID", "==", user.username)
-      .orderBy("tanggal", "desc")
-      .limit(50)
-      .get();
+    if (!uplineData) break;
 
-    if (snapshot.empty) {
-      komisiEl.innerHTML = "<p class='text-gray-500'>Belum ada komisi.</p>";
-      totalEl.textContent = "Rp 0";
-      return;
-    }
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const nominal = data.nominal || 0;
-      total += nominal;
-
-      const item = document.createElement("div");
-      item.className = "border-b py-2";
-      item.innerHTML = `
-        <div class="font-semibold">${data.jenis || 'Komisi'}</div>
-        <div class="text-sm text-gray-600">Dari: ${data.sumber || '–'}</div>
-        <div class="text-sm text-gray-500">${formatTanggal(data.tanggal?.toDate())}</div>
-        <div class="text-green-600 font-bold">Rp ${nominal.toLocaleString()}</div>
-      `;
-      komisiEl.appendChild(item);
+    // Tambahkan omzet jaringan ke upline (selalu masuk, aktif/tidak)
+    const omzetLama = uplineData.omzetJaringan || 0;
+    await db.collection("users").doc(uplineID).update({
+      omzetJaringan: omzetLama + jumlah
     });
 
-    totalEl.textContent = `Rp ${total.toLocaleString()}`;
-  } catch (err) {
-    console.error("Gagal mengambil data komisi:", err);
-    komisiEl.innerHTML = "<p class='text-red-500'>Gagal memuat data komisi.</p>";
-    totalEl.textContent = "Rp 0";
+    // Komisi matrix hanya kalau pembeli aktif
+    if (statusAktif) {
+      await db.collection("komisi").add({
+        userID: uplineID,
+        dariUser: usernamePembeli,
+        jumlah: Math.floor(jumlah * 0.05), // 5%
+        jenis: "Matrix Lv" + level,
+        tanggal: new Date()
+      });
+    }
+
+    uplineID = uplineData.parentID;
+    level++;
   }
 }
 
-function formatTanggal(tgl) {
-  if (!(tgl instanceof Date)) return "";
-  const opsi = { day: 'numeric', month: 'short', year: 'numeric' };
-  return tgl.toLocaleDateString('id-ID', opsi);
+async function loadKomisiUser() {
+  const komisiSnapshot = await db.collection("komisi")
+    .where("userID", "==", window.currentUser.username)
+    .get();
+
+  let total = 0;
+  let sponsor = 0;
+  let matrix = 0;
+
+  komisiSnapshot.forEach(doc => {
+    const data = doc.data();
+    total += data.jumlah;
+    if (data.jenis === "Sponsor") sponsor += data.jumlah;
+    else matrix += data.jumlah;
+  });
+
+  document.querySelector(".total-komisi").textContent = `Rp${total.toLocaleString()}`;
+  document.querySelector(".komisi-sponsor").textContent = `Rp${sponsor.toLocaleString()}`;
+  document.querySelector(".komisi-matrix").textContent = `Rp${matrix.toLocaleString()}`;
 }
