@@ -74,25 +74,12 @@
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data();
 
-        // Simpan global
-        window.db = db;
-        window.currentUser = {
-          email: user.email,
-          username: data.username,
-          name: data.name,
-          isAdmin: data.isAdmin === true
-        };
-
-        if (window.currentUser.isAdmin) {
-          document.getElementById("adminMenuButton").classList.remove("hidden");
-        }
-
-        // Cek status aktif berdasarkan transaksi 26 bulan lalu s/d 25 bulan ini
+        // Hitung status aktif berdasarkan cutoff: 26 bulan lalu - 25 bulan ini
         const now = new Date();
-        const awal = new Date(now.getFullYear(), now.getMonth() - 1, 26); // 26 bulan lalu
-        const akhir = new Date(now.getFullYear(), now.getMonth(), 25);    // 25 bulan ini
-
+        const awal = new Date(now.getFullYear(), now.getMonth() - 1, 26);
+        const akhir = new Date(now.getFullYear(), now.getMonth(), 25);
         let aktif = false;
+
         const transaksiSnapshot = await db.collection("transaksi")
           .where("userID", "==", data.username)
           .get();
@@ -102,15 +89,26 @@
           if (tgl >= awal && tgl <= akhir) aktif = true;
         });
 
-        // Update status aktif ke Firestore
+        // Update statusAktif di Firestore
         await db.collection("users").doc(data.username).update({
           statusAktif: aktif
         });
 
-        // Simpan statusAktif ke window
-        window.currentUser.statusAktif = aktif;
+        // Simpan global user
+        window.db = db;
+        window.currentUser = {
+          email: user.email,
+          username: data.username,
+          name: data.name,
+          isAdmin: data.isAdmin === true
+        };
 
-        // Tampilkan di dashboard
+        // Tampilkan menu admin kalau dia admin
+        if (window.currentUser.isAdmin) {
+          document.getElementById("adminMenuButton").classList.remove("hidden");
+        }
+
+        // Update tampilan dashboard
         const nameEl = document.querySelector('#userName');
         if (nameEl) nameEl.textContent = data.name || 'User';
 
@@ -127,28 +125,27 @@
           statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
         }
 
-        // Tampilkan Sponsor
+        // Tampilkan sponsor
         const sponsorEl = document.querySelector('#userSponsor');
         if (data.sponsorID && data.sponsorID !== 'root') {
           const sponsorDoc = await db.collection('users').doc(data.sponsorID).get();
           const sponsor = sponsorDoc.data();
-          if (sponsor && sponsorEl) sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
+          if (sponsor && sponsorEl)
+            sponsorEl.textContent = `${sponsor.name || sponsor.nama} (${sponsor.email})`;
         } else if (sponsorEl) {
           sponsorEl.textContent = 'Top Leader (admin)';
         }
 
-        // Tampilkan Parent
+        // Tampilkan parent
         const parentEl = document.querySelector('#userParent');
         if (data.parentID && data.parentID !== 'root') {
           const parentDoc = await db.collection('users').doc(data.parentID).get();
           const parent = parentDoc.data();
-          if (parent && parentEl) parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
+          if (parent && parentEl)
+            parentEl.textContent = `${parent.name || parent.nama} (${parent.email})`;
         } else if (parentEl) {
           parentEl.textContent = 'Top Leader (admin)';
         }
-
-        // Load konten awal
-        navigateMenu('home');
       }
     } catch (e) {
       console.error('Gagal ambil data user:', e);
