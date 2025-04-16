@@ -1,4 +1,3 @@
-// Fungsi utama untuk mencatat pembelian user dan proses efeknya
 async function catatPembelian(nominal) {
   const user = window.currentUser;
   if (!user || !user.username) {
