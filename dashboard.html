@@ -100,7 +100,6 @@
         if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
         const statusEl = document.querySelector('#userStatus');
-        let aktif = false;
         try {
           const now = new Date();
           const tahun = now.getFullYear();
@@ -120,13 +119,14 @@
             statusAktif: aktif
           });
 
+          if (statusEl) {
+            statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
+            statusEl.classList.remove('text-green-600', 'text-red-600');
+            statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
+          }
+
         } catch (err) {
           console.error("Gagal cek transaksi:", err);
-        }
-        if (statusEl) {
-          statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
-          statusEl.classList.remove('text-green-600', 'text-red-600');
-          statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
         }
 
         // Sponsor
