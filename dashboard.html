@@ -28,6 +28,8 @@
           return;
         }
       }
+      if (menu === 'beli-produk') return; // section udah ditampilkan di atas
+    }
       if (window.innerWidth < 768) {
         const sidebar = document.getElementById('sidebar');
         const menuPath = document.getElementById('menuPath');
@@ -190,6 +192,7 @@
       <h1 class="text-2xl font-bold text-purple-700">Alfaz Network</h1>
       <nav class="space-y-2">
         <button onclick="navigateMenu('home')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🏠 Beranda</button>
+        <button onclick="navigateMenu('beli-produk')" class="text-left w-full px-4 py-2 hover:bg-purple-100 rounded transition">🛍️ Beli Produk</button>
         <button onclick="navigateMenu('network')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🌿 Jaringan Saya</button>
         <button onclick="navigateMenu('komisi')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">💸 Komisi Saya</button>
         <button onclick="navigateMenu('bonus')" class="block w-full text-left py-2 px-4 rounded-lg hover:bg-purple-100 text-gray-800 font-medium">🎁 Bonus Reward</button>
@@ -231,11 +234,27 @@
         </div>
       </section>
 
-<!-- Section Pembelian -->
-<section class="my-6">
-  <h3 class="text-xl font-bold">🛒 Pembelian Pribadi</h3>
-  <input type="number" id="nominalInput" placeholder="Masukkan nominal" class="border p-2 rounded w-48" />
-  <button onclick="catatPembelian(parseInt(document.getElementById('nominalInput').value))" class="bg-blue-600 text-white px-4 py-2 rounded ml-2">💳 Bayar</button>
+<!-- Section Beli Produk -->
+<section id="beliProdukSection" class="hidden">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">🛍️ Beli Produk</h2>
+
+  <div class="bg-white p-6 rounded-2xl shadow-md mb-6">
+    <p class="text-gray-700 mb-2">Simulasi pembelian produk untuk keperluan testing sistem komisi dan jaringan.</p>
+    
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+      <input type="number" id="jumlahPembelian" placeholder="Masukkan jumlah pembelian (Rp)" class="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-1/2" />
+      <button onclick="prosesTransaksiDummy()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+        💸 Simulasi Pembelian
+      </button>
+    </div>
+    <p id="statusTransaksiDummy" class="mt-4 text-sm text-gray-600"></p>
+  </div>
+
+  <div class="bg-yellow-100 p-4 rounded-lg shadow-inner">
+    <p class="text-yellow-800 text-sm">
+      ⚠️ Ini hanya untuk testing internal. Semua transaksi di sini tidak memengaruhi stok atau proses pengiriman produk.
+    </p>
+  </div>
 </section>
       
 <!-- Section Jaringan -->
