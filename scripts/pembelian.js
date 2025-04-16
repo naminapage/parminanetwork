@@ -15,7 +15,7 @@ async function catatPembelian(nominal) {
   try {
     // Cek apakah ini pembelian pertama bulan ini (cut-off)
     const transaksiSnapshot = await db.collection("transaksi")
-      .where("userID", "==", user.username)
+      .where("userID", "==", data.username)
       .where("tanggal", ">=", awalCutOff)
       .where("tanggal", "<=", akhirCutOff)
       .get();
