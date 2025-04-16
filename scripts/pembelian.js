@@ -22,7 +22,6 @@ async function catatPembelian(nominal) {
     .get();
 
   const isPembelianPertama = transaksiSnapshot.empty;
-    });
 
     // 2. Update status aktif & pembelian pribadi
     await db.collection("users").doc(user.username).update({
