@@ -56,7 +56,7 @@ async function prosesKomisiTransaksi(transaksiDoc) {
   }
 }
 
-async function loadKomisiUser() {
+async function loadKomisi() {
   const komisiSnapshot = await db.collection("komisi")
     .where("userID", "==", window.currentUser.username)
     .get();
