@@ -25,6 +25,15 @@ async function adminSearchUser() {
     document.getElementById("adminUserAktif").checked = !!data.statusAktif;
     document.getElementById("adminUserBelanja").value = data.pembelianPribadi || 0;
 
+    // Atur radio button berdasarkan data forceAktif
+    if (data.forceAktif === true) {
+      document.querySelector('input[name="forceAktif"][value="true"]').checked = true;
+    } else if (data.forceAktif === false) {
+      document.querySelector('input[name="forceAktif"][value="false"]').checked = true;
+    } else {
+      document.querySelector('input[name="forceAktif"][value="null"]').checked = true;
+    }
+
     userInfo.dataset.username = username;
     userInfo.classList.remove("hidden");
   } catch (err) {
@@ -42,9 +51,14 @@ async function adminSaveUser() {
   const belanja = parseInt(document.getElementById("adminUserBelanja").value);
 
   try {
+    const selectedOverride = document.querySelector('input[name="forceAktif"]:checked').value;
+    let overrideValue = null;
+    if (selectedOverride === "true") overrideValue = true;
+    else if (selectedOverride === "false") overrideValue = false;
     await window.db.collection("users").doc(username).update({
       statusAktif: aktif,
-      pembelianPribadi: belanja
+      pembelianPribadi: belanja,
+      forceAktif: overrideValue
     });
 
     status.textContent = "Data user berhasil diperbarui!";
