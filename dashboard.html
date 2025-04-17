@@ -114,15 +114,19 @@
 
           const forceNonAktif = userData.forceNonAktif === true;
 
-          const transaksiSnapshot = await db.collection("transaksi")
-            .where("userID", "==", data.username)
-            .where("tanggal", ">=", awalCutOff)
-            .where("tanggal", "<=", akhirCutOff)
-            .get();
+          let aktif = false;
 
-          const aktif = !transaksiSnapshot.empty && !forceNonAktif;
+          if (!forceNonAktif) {
+            const transaksiSnapshot = await db.collection("transaksi")
+              .where("userID", "==", data.username)
+              .where("tanggal", ">=", awalCutOff)
+              .where("tanggal", "<=", akhirCutOff)
+              .get();
 
-          // Simpan ke Firestore juga
+          const aktif = !transaksiSnapshot.empty
+          }
+          
+          // Update ke Firestore (wajib)
           await userRef.update({
             statusAktif: aktif
           });
