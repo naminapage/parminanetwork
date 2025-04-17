@@ -100,7 +100,7 @@
         if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
         const statusEl = document.querySelector('#userStatus');
-
+        let aktif = false;
         try {
           const now = new Date();
           const tahun = now.getFullYear();
@@ -112,34 +112,35 @@
           const userDoc = await userRef.get();
           const userData = userDoc.data();
 
-          const forceNonAktif = userData.forceNonAktif === true;
+          const forceAktif = userData.forceAktif;
 
-          let aktif = false;
-
-          if (!forceNonAktif) {
+          if (forceAktif === true) {
+            aktif = true;
+          } else if (forceAktif === false) {
+            aktif = false;
+          } else {
             const transaksiSnapshot = await db.collection("transaksi")
               .where("userID", "==", data.username)
               .where("tanggal", ">=", awalCutOff)
               .where("tanggal", "<=", akhirCutOff)
               .get();
 
-          const aktif = !transaksiSnapshot.empty
+            aktif = !transaksiSnapshot.empty;
           }
-          
-          // Update ke Firestore (wajib)
+
+          // Simpan ke Firestore juga
           await userRef.update({
             statusAktif: aktif
           });
 
-          // Tampilkan status ke UI
-          if (statusEl) {
-            statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
-            statusEl.classList.remove('text-green-600', 'text-red-600');
-            statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
-          }
-
         } catch (err) {
           console.error("Gagal cek status aktif:", err);
+        }
+
+        if (statusEl) {
+          statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
+          statusEl.classList.remove('text-green-600', 'text-red-600');
+          statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
         }
 
         // Sponsor
@@ -437,8 +438,10 @@
 
       <label><input type="checkbox" id="adminUserAktif"> Aktif Bulan Ini</label><br>
       <label>
-        <input type="checkbox" id="forceNonAktifCheckbox">
-        Paksa Nonaktif
+      <label class="block mb-1">Status Override:</label>
+      <label><input type="radio" name="forceAktif" value="null"> Otomatis</label><br>
+      <label><input type="radio" name="forceAktif" value="true"> Paksa Aktif</label><br>
+      <label><input type="radio" name="forceAktif" value="false"> Paksa Nonaktif</label><br>
       </label><br>
       <label>
         Pembelian Pribadi (Rp): <input type="number" id="adminUserBelanja" class="border p-1 rounded w-32 ml-2">
