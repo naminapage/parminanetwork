@@ -100,6 +100,7 @@
         if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
         const statusEl = document.querySelector('#userStatus');
+        let aktif = false;
         try {
           const now = new Date();
           const tahun = now.getFullYear();
@@ -107,26 +108,33 @@
           const awalCutOff = new Date(bulan === 0 ? tahun - 1 : tahun, bulan === 0 ? 11 : bulan - 1, 26);
           const akhirCutOff = new Date(tahun, bulan, 25);
 
+          const userRef = db.collection("users").doc(data.username);
+          const userDoc = await userRef.get();
+          const userData = userDoc.data();
+
+          const forceNonAktif = userData.forceNonAktif === true;
+
           const transaksiSnapshot = await db.collection("transaksi")
             .where("userID", "==", data.username)
             .where("tanggal", ">=", awalCutOff)
             .where("tanggal", "<=", akhirCutOff)
             .get();
 
-          let aktif = !transaksiSnapshot.empty;
-
-          await db.collection("users").doc(data.username).update({
+          aktif = !transaksiSnapshot.empty && !forceNonAktif;
+          
+          // Simpan ke Firestore juga (biar konsisten)
+          await userRef.update({
             statusAktif: aktif
           });
 
-          if (statusEl) {
-            statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
-            statusEl.classList.remove('text-green-600', 'text-red-600');
-            statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
-          }
-
         } catch (err) {
-          console.error("Gagal cek transaksi:", err);
+          console.error("Gagal cek status aktif:", err);
+        }
+
+        if (statusEl) {
+          statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
+          statusEl.classList.remove('text-green-600', 'text-red-600');
+          statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
         }
 
         // Sponsor
@@ -423,6 +431,10 @@
       <p><strong>Email:</strong> <span id="adminUserEmail"></span></p>
 
       <label><input type="checkbox" id="adminUserAktif"> Aktif Bulan Ini</label><br>
+      <label>
+        <input type="checkbox" id="forceNonAktifCheckbox">
+        Paksa Nonaktif
+      </label>
       <label>
         Pembelian Pribadi (Rp): <input type="number" id="adminUserBelanja" class="border p-1 rounded w-32 ml-2">
       </label><br>
