@@ -100,7 +100,7 @@
         if (omzetEl) omzetEl.textContent = data.omzetJaringan || 0;
 
         const statusEl = document.querySelector('#userStatus');
-        let aktif = false;
+
         try {
           const now = new Date();
           const tahun = now.getFullYear();
@@ -120,21 +120,22 @@
             .where("tanggal", "<=", akhirCutOff)
             .get();
 
-          aktif = !transaksiSnapshot.empty && !forceNonAktif;
-          
-          // Simpan ke Firestore juga (biar konsisten)
+          const aktif = !transaksiSnapshot.empty && !forceNonAktif;
+
+          // Simpan ke Firestore juga
           await userRef.update({
             statusAktif: aktif
           });
 
+          // Tampilkan status ke UI
+          if (statusEl) {
+            statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
+            statusEl.classList.remove('text-green-600', 'text-red-600');
+            statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
+          }
+
         } catch (err) {
           console.error("Gagal cek status aktif:", err);
-        }
-
-        if (statusEl) {
-          statusEl.textContent = aktif ? 'Aktif Bulan Ini' : 'Belum Aktif Bulan Ini';
-          statusEl.classList.remove('text-green-600', 'text-red-600');
-          statusEl.classList.add(aktif ? 'text-green-600' : 'text-red-600');
         }
 
         // Sponsor
@@ -434,7 +435,7 @@
       <label>
         <input type="checkbox" id="forceNonAktifCheckbox">
         Paksa Nonaktif
-      </label>
+      </label><br>
       <label>
         Pembelian Pribadi (Rp): <input type="number" id="adminUserBelanja" class="border p-1 rounded w-32 ml-2">
       </label><br>
